@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import './NavBar.css'
 
 function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -15,7 +14,7 @@ function NavBar() {
         <div className="logo">
           <Link to="/" aria-label="UrbanStyle inicio">
             <img 
-              src="/favicon.svg" 
+              src="/src/Image/favicon-urbanstyle.svg" 
               width="48" 
               height="48" 
               alt="Logo UrbanStyle" 
@@ -42,10 +41,10 @@ function NavBar() {
           <li><Link to="/blog">Blog</Link></li>
           <li><Link to="/about">Nosotros</Link></li>
           <li><Link to="/contact">Contacto</Link></li>
-          <li data-admin-item="true" style={{ display: 'none' }}>
+          <li data-admin-item="true" className="admin-hidden-item">
             <Link to="/admin/productos">Crear productos</Link>
           </li>
-          <li data-admin-orders-item="true" style={{ display: 'none' }}>
+          <li data-admin-orders-item="true" className="admin-hidden-item">
             <Link to="/admin/orders">Compras</Link>
           </li>
           <li><Link to="/account">Cuenta</Link></li>
