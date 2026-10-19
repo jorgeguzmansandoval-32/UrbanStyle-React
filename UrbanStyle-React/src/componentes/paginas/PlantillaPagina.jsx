@@ -1,4 +1,4 @@
-export default function PageTemplate({ title, description, children }) {
+export default function PlantillaPagina({ title, description, children }) {
   return (
     <main className="page-template-main">
       <div className="page-template-inner">

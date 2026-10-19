@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-export default function HomePage() {
+export default function InicioPage() {
   const categories = [
     { name: 'Hombres', text: 'Ropa urbana, oversized y essentials premium.' },
     { name: 'Mujeres', text: 'Look minimalista, elegante y con actitud callejera.' },

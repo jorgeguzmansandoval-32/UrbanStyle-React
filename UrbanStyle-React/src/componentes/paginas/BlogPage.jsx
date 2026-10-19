@@ -1,8 +1,8 @@
-import PageTemplate from './PageTemplate'
+import PlantillaPagina from './PlantillaPagina'
 
 export default function BlogPage() {
   return (
-    <PageTemplate
+    <PlantillaPagina
       title="Blog"
       description="Ideas, tendencias y estilo urbano para inspirarte cada día."
     >
@@ -16,6 +16,6 @@ export default function BlogPage() {
           <p>Blacks, neutrales y acentos verdes siguen marcando tendencia en la moda casual premium.</p>
         </article>
       </div>
-    </PageTemplate>
+    </PlantillaPagina>
   )
 }

@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom'
-import PageTemplate from './PageTemplate'
+import PlantillaPagina from './PlantillaPagina'
 
-export default function NotFoundPage() {
+export default function PaginaNoEncontrada() {
   return (
-    <PageTemplate
+    <PlantillaPagina
       title="Página no encontrada"
       description="La ruta que buscas no existe en UrbanStyle."
     >
       <Link to="/" className="btn btn-primary">Volver al inicio</Link>
-    </PageTemplate>
+    </PlantillaPagina>
   )
 }

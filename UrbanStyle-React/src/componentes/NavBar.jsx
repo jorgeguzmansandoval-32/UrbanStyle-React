@@ -14,7 +14,7 @@ function NavBar() {
         <div className="logo">
           <Link to="/" aria-label="UrbanStyle inicio">
             <img 
-              src="/src/Image/favicon-urbanstyle.svg" 
+              src="/src/Imagen/favicon-urbanstyle.svg" 
               width="48" 
               height="48" 
               alt="Logo UrbanStyle" 

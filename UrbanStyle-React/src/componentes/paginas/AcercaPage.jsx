@@ -1,8 +1,8 @@
-import PageTemplate from './PageTemplate'
+import PlantillaPagina from './PlantillaPagina'
 
-export default function AboutPage() {
+export default function AcercaPage() {
   return (
-    <PageTemplate
+    <PlantillaPagina
       title="Nosotros"
       description="UrbanStyle nació para ofrecer streetwear con identidad, calidad y actitud."
     >
@@ -12,6 +12,6 @@ export default function AboutPage() {
           materiales funcionales y un estilo que conecta con la calle, la música y la cultura urbana.
         </p>
       </div>
-    </PageTemplate>
+    </PlantillaPagina>
   )
 }

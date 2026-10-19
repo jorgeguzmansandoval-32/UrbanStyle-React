@@ -1,14 +1,14 @@
-import PageTemplate from './PageTemplate'
+import PlantillaPagina from './PlantillaPagina'
 
-export default function AccountPage() {
+export default function CuentaPage() {
   return (
-    <PageTemplate
+    <PlantillaPagina
       title="Cuenta"
       description="Gestiona tu perfil, pedidos y preferencias personales."
     >
       <div className="page-card-panel">
         <p className="page-account-text">Bienvenido de nuevo. Aquí puedes ver tus pedidos y ajustes del perfil.</p>
       </div>
-    </PageTemplate>
+    </PlantillaPagina>
   )
 }

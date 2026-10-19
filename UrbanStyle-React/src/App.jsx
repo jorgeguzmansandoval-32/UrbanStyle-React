@@ -1,27 +1,27 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import './style/Style.css'
-import NavBar from './components/NavBar'
-import Footer from './components/Footer'
-import HomePage from './components/pages/HomePage'
-import BlogPage from './components/pages/BlogPage'
-import AboutPage from './components/pages/AboutPage'
-import ContactPage from './components/pages/ContactPage'
-import AccountPage from './components/pages/AccountPage'
-import CartPage from './components/pages/CartPage'
-import NotFoundPage from './components/pages/NotFoundPage'
+import './estilos/Style.css'
+import NavBar from './componentes/NavBar'
+import Footer from './componentes/Footer'
+import InicioPage from './componentes/paginas/InicioPage'
+import BlogPage from './componentes/paginas/BlogPage'
+import AcercaPage from './componentes/paginas/AcercaPage'
+import ContactoPage from './componentes/paginas/ContactoPage'
+import CuentaPage from './componentes/paginas/CuentaPage'
+import CarritoPage from './componentes/paginas/CarritoPage'
+import PaginaNoEncontrada from './componentes/paginas/PaginaNoEncontrada'
 
 function App() {
   return (
     <BrowserRouter>
       <NavBar />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<InicioPage />} />
         <Route path="/blog" element={<BlogPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/account" element={<AccountPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        <Route path="/about" element={<AcercaPage />} />
+        <Route path="/contact" element={<ContactoPage />} />
+        <Route path="/account" element={<CuentaPage />} />
+        <Route path="/cart" element={<CarritoPage />} />
+        <Route path="*" element={<PaginaNoEncontrada />} />
       </Routes>
       <Footer />
     </BrowserRouter>

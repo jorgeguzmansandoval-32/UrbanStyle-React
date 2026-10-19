@@ -257,7 +257,7 @@ footer { margin-top: auto; }
     color: #fff;
     background:
         linear-gradient(90deg, rgba(8,8,8,.93) 0%, rgba(8,8,8,.74) 48%, rgba(8,8,8,.20) 100%),
-        url('../Image/UrbanStyle-tienda.jpg') center/cover no-repeat;
+        url('../Imagen/UrbanStyle-tienda.jpg') center/cover no-repeat;
 }
 
 .titulo_bienvenida::after {
