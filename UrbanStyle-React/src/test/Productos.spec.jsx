@@ -10,7 +10,7 @@ describe("Componente Productos",()=>{
     afterEach(() =>{
         cleanup();
     })
-});
+
 
 It("muestrame el nombre del producto", ()=>{
     render(
@@ -20,4 +20,5 @@ It("muestrame el nombre del producto", ()=>{
         tag = "NUEVO"
         /> 
     );
+});
 });
