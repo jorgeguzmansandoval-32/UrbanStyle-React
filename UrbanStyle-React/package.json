@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview"
+    "test": "karma start karma.conf.cjs"
   },
   "dependencies": {
     "react": "^19.2.8",
