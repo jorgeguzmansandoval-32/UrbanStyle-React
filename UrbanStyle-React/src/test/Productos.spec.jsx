@@ -12,11 +12,12 @@ describe("Componente Productos",()=>{
     })
 });
 
-It("muestra,e el nombre del producto", ()=>{
+It("muestrame el nombre del producto", ()=>{
     render(
-        Productos
-        name "Chaqueta Street Lite"
-        price: $129.900
-        tag: "NUEVO" 
-    )
+        <Productos
+        name ="Chaqueta Street Lite"
+        price = {129.900}
+        tag = "NUEVO"
+        /> 
+    );
 });
