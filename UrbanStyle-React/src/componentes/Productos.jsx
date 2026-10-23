@@ -1,40 +1,196 @@
-const defaultProducts = [
-  { name: 'Chaqueta Street Lite', price: '$129.900', tag: 'NUEVO' },
-  { name: 'Pantalón Cargo Core', price: '$89.900', tag: 'TOP' },
-  { name: 'Polerón Urban Flex', price: '$119.900', tag: 'LIMITADO' },
-  { name: 'Zapatillas Drift', price: '$149.900', tag: 'DESTACADO' },
+
+import { useState } from 'react'
+import Producto from './Producto'
+
+import chaquetaFur from '../Imagen/catalogo-chaqueta-fur.jpg'
+import chaquetaRacing from '../Imagen/catalogo-chaqueta-racing.jpg'
+import cortaviento from '../Imagen/catalogo-cortaviento-tech.jpg'
+import jeans from '../Imagen/catalogo-jeans-ripped.jpg'
+import cargo from '../Imagen/catalogo-pantalon-cargo.jpg'
+
+const productos = [
+  {
+    id: 1,
+    name: 'Chaqueta Urban Fur',
+    description: 'Chaqueta negra de corte urbano con cuello de textura y cierre frontal.',
+    price: 45990,
+    stock: 12,
+    image: chaquetaFur
+  },
+  {
+    id: 2,
+    name: 'Chaqueta Racing Black',
+    description: 'Chaqueta bomber negra con gráfica deportiva y detalles reflectantes.',
+    price: 59990,
+    stock: 8,
+    image: chaquetaRacing
+  },
+  {
+    id: 3,
+    name: 'Cortaviento Tech Grey',
+    description: 'Cortaviento ligero gris con paneles contrastantes y silueta técnica.',
+    price: 49990,
+    stock: 15,
+    image: cortaviento
+  },
+  {
+    id: 4,
+    name: 'Jeans Ripped Black',
+    description: 'Jeans negros de corte relajado con detalles desgastados y cadenas.',
+    price: 39990,
+    stock: 10,
+    image: jeans
+  },
+  {
+    id: 5,
+    name: 'Cargo Utility Grey',
+    description: 'Pantalón cargo gris de inspiración utilitaria para un fit urbano.',
+    price: 44990,
+    stock: 6,
+    image: cargo
+  }
 ]
 
-export default function Productos({ products = defaultProducts }) {
+export default function Productos() {
+
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortOrder, setSortOrder] = useState('default')
+
+  // Filtrar productos disponibles y buscar por nombre
+  const productosFiltrados = productos
+    .filter((producto) => producto.stock > 0)
+    .filter((producto) =>
+      producto.name
+        .toLowerCase()
+        .includes(searchTerm.trim().toLowerCase())
+    )
+
+  // Ordenar productos según la opción seleccionada
+  if (sortOrder === 'name-asc') {
+    productosFiltrados.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    )
+  }
+
+  if (sortOrder === 'name-desc') {
+    productosFiltrados.sort((a, b) =>
+      b.name.localeCompare(a.name)
+    )
+  }
+
+  if (sortOrder === 'price-asc') {
+    productosFiltrados.sort((a, b) =>
+      a.price - b.price
+    )
+  }
+
+  if (sortOrder === 'price-desc') {
+    productosFiltrados.sort((a, b) =>
+      b.price - a.price
+    )
+  }
+
   return (
-    <section id="productos" className="products-section" style={{ padding: '0 24px 80px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: '20px', flexWrap: 'wrap', marginBottom: '28px' }}>
-          <div>
-            <p style={{ color: '#7d7d77', textTransform: 'uppercase', letterSpacing: '0.18em', fontSize: '0.8rem', fontWeight: 700 }}>
-              Colección
-            </p>
-            <h2 style={{ fontSize: 'clamp(2rem, 3vw, 3rem)', margin: '10px 0 0' }}>Lo más vendido</h2>
-          </div>
+    <section
+      id="productos"
+      className="products-section section-shell"
+    >
+      <div className="section-heading product-heading">
+        <div>
+          <span className="section-number">
+            03 / SELECCIÓN
+          </span>
+
+          <h2>
+            Lo que está
+            <br />
+            <span>sonando.</span>
+          </h2>
+        </div>
+      </div>
+
+      {/* Barra de búsqueda y ordenamiento */}
+      <div
+        className="product-toolbar"
+        aria-label="Buscar y ordenar productos"
+      >
+        <div className="product-search">
+          <label htmlFor="searchProducts">
+            Buscar por nombre
+          </label>
+
+          <input
+            type="search"
+            id="searchProducts"
+            placeholder="Ej: hoodie, chaqueta..."
+            value={searchTerm}
+            onChange={(event) =>
+              setSearchTerm(event.target.value)
+            }
+          />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '22px' }}>
-          {products.map((product) => (
-            <article key={product.name} style={{ background: '#f8f8f5', borderRadius: '18px', padding: '18px', border: '1px solid #ecece7' }}>
-              <div style={{ height: '220px', background: 'linear-gradient(135deg, #111 15%, #2d2d2d 40%, #c8ff00 120%)', borderRadius: '14px', marginBottom: '18px' }} />
-              <p style={{ color: '#7d7d77', fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '8px' }}>
-                {product.tag}
-              </p>
-              <h3 style={{ margin: '0 0 10px', fontSize: '1.3rem' }}>{product.name}</h3>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                <strong style={{ fontSize: '1.1rem', color: '#111' }}>{product.price}</strong>
-                <button type="button" className="btn btn-primary" style={{ padding: '10px 14px', fontSize: '0.85rem' }}>
-                  Agregar
-                </button>
-              </div>
-            </article>
-          ))}
+        <div className="product-sort">
+          <label htmlFor="sortProducts">
+            Ordenar por
+          </label>
+
+          <select
+            id="sortProducts"
+            value={sortOrder}
+            onChange={(event) =>
+              setSortOrder(event.target.value)
+            }
+          >
+            <option value="default">
+              Sin ordenar
+            </option>
+
+            <option value="name-asc">
+              Nombre A-Z
+            </option>
+
+            <option value="name-desc">
+              Nombre Z-A
+            </option>
+
+            <option value="price-asc">
+              Precio: menor a mayor
+            </option>
+
+            <option value="price-desc">
+              Precio: mayor a menor
+            </option>
+          </select>
         </div>
+      </div>
+
+      {/* Listado de productos */}
+      <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 premium-product-grid">
+
+        {productosFiltrados.length > 0 ? (
+
+          productosFiltrados.map((producto, index) => (
+            <Producto
+              key={producto.id}
+              producto={producto}
+              numero={index + 1}
+            />
+          ))
+
+        ) : (
+
+          <div className="col-12">
+            <div
+              className="alert alert-secondary mb-0"
+              role="status"
+            >
+              No se encontraron productos con ese nombre.
+            </div>
+          </div>
+
+        )}
+
       </div>
     </section>
   )
