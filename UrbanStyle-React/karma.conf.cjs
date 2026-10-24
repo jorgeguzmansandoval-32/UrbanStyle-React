@@ -16,7 +16,7 @@ module.exports = function (config) {
       mode: 'development',
       devtool: 'inline-source-map',
       resolve: {
-        extensions: ['.js', '.jsx', '.json', '.wasm', '.html']
+        extensions: ['.js', '.jsx','.wasm', '.html']
       },
       module: {
         rules: [
@@ -32,6 +32,11 @@ module.exports = function (config) {
                 presets: [
                   require.resolve('@babel/preset-env'),
                   [require.resolve('@babel/preset-react'), { runtime: 'automatic' }]
+                ],
+                plugins: [
+                  [require.resolve('babel-plugin-istanbul'), {
+                    include: ['**/src/test/**/*.spec.js', '**/src/test/**/*.spec.jsx']
+                  }]
                 ]
               }
             }
@@ -51,6 +56,13 @@ module.exports = function (config) {
     webpackMiddleware: { stats: 'errors-only' },
     browsers: ['ChromeHeadless'],
     singleRun: true,
-    reporters: ['progress']
+    reporters: ['progress', 'coverage'],
+    coverageReporter: {
+      dir: 'coverage',
+      reporters: [
+        { type: 'html', subdir: 'html' },
+        { type: 'text-summary' }
+      ]
+    }
   })
 }
