@@ -1,7 +1,22 @@
 {
   "generatedOnPlatform": "win32",
   "projectType": "webapp",
-  "setup": [],
+  "devServer": {
+    "command": "npm",
+    "args": ["run", "start:validation"],
+    "env": {
+      "PORT": "3100"
+    },
+    "url": "http://127.0.0.1:3100/",
+    "readyTimeoutSeconds": 180
+  },
+  "setup": [
+    {
+      "command": "npm",
+      "args": ["ci", "--no-audit", "--no-fund"],
+      "timeoutSeconds": 600
+    }
+  ],
   "assertions": [
     {
       "name": "production-build",
@@ -22,29 +37,6 @@
       "timeoutSeconds": 120
     },
     {
-      "name": "home-page-serves",
-      "kind": "http-probe",
-      "startCommand": "npm",
-      "startArgs": ["run", "dev:web", "--", "--port", "5180", "--strictPort"],
-      "url": "http://localhost:5180/",
-      "verificationMethod": "http-status",
-      "expected": "200",
-      "timeoutSeconds": 120
-    },
-    {
-      "name": "product-catalog-api-serves",
-      "kind": "http-probe",
-      "startCommand": "npm",
-      "startArgs": ["run", "start"],
-      "env": {
-        "PORT": "3101"
-      },
-      "url": "http://localhost:3101/api/products",
-      "verificationMethod": "http-status",
-      "expected": "200",
-      "timeoutSeconds": 60
-    },
-    {
       "name": "tests-pass",
       "kind": "process",
       "command": "npm",
@@ -52,6 +44,27 @@
       "verificationMethod": "test-results",
       "expected": "0",
       "timeoutSeconds": 300
+    },
+    {
+      "name": "seed-images-exist",
+      "kind": "process",
+      "command": "npm",
+      "args": ["run", "verify:seeds"],
+      "verificationMethod": "exit-code",
+      "expected": "0",
+      "timeoutSeconds": 60
+    },
+    {
+      "name": "purchase-flow-and-database-persistence",
+      "kind": "process",
+      "command": "npm",
+      "args": ["run", "test:e2e"],
+      "env": {
+        "URBANSTYLE_E2E_URL": "http://127.0.0.1:3100"
+      },
+      "verificationMethod": "exit-code",
+      "expected": "0",
+      "timeoutSeconds": 180
     }
   ]
 }

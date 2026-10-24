@@ -612,6 +612,9 @@ h1, h2, h3, h4, .brand-title {
   color: #080808;
   background: var(--accent-neon);
 }
+.catalog-search { display: grid; max-width: 470px; gap: 8px; margin: 24px 0; color: #aaa; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.catalog-search input { width: 100%; min-height: 44px; padding: 0 13px; border: 1px solid #383838; border-radius: 2px; color: #eee; background: #151515; font: 400 0.8rem var(--font-body); letter-spacing: normal; text-transform: none; }
+.catalog-search input:focus { border-color: var(--accent-neon); outline: 1px solid var(--accent-neon); }
 .customer-register-form { max-height: 55vh; overflow-y: auto; padding-right: 5px; }
 .shipping-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .shipping-form-grid > div { display: grid; gap: 8px; align-content: start; }
@@ -650,6 +653,17 @@ h1, h2, h3, h4, .brand-title {
 .demo-disclaimer code { color: #e2e2e2; }
 .store-error { margin: 7px 0; color: #ff9999; font-size: 0.75rem; }
 .store-success { color: #d1ee59; font-size: 0.8rem; }
+.validation-summary { margin: 10px 0 14px; padding: 12px 14px; border: 1px solid #813d3d; color: #ffd0d0; background: #261616; font-size: 0.75rem; line-height: 1.5; }
+.validation-summary ul { margin: 7px 0 0; padding-left: 18px; }
+.field-error { margin: -4px 0 4px; color: #ff9999; font-size: 0.7rem; line-height: 1.4; }
+.store-form input[aria-invalid="true"], .store-form textarea[aria-invalid="true"] { border-color: #ff7777; box-shadow: 0 0 0 1px #ff7777; }
+.form-submit:disabled { cursor: wait; opacity: 0.65; }
+.loading-message { display: flex; min-height: 100px; align-items: center; justify-content: center; gap: 11px; color: #aaa; font-size: 0.8rem; }
+.loading-spinner { display: inline-block; width: 17px; height: 17px; flex: 0 0 auto; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: loading-spin 0.75s linear infinite; }
+@keyframes loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner { animation-duration: 1.8s; }
+}
 
 .cart-overlay { justify-content: flex-end; padding: 0; }
 .cart-drawer { display: flex; width: min(100%, 560px); height: 100%; max-height: none; flex-direction: column; padding: 28px; border-width: 0 0 0 1px; }

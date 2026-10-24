@@ -19,7 +19,7 @@ export function obtenerPedidos() {
     const pedidos = JSON.parse(datos || '[]')
 
     return Array.isArray(pedidos) ? pedidos : []
-  } catch (error) {
+  } catch {
     console.error('Error al consultar pedidos:', error)
     return []
   }
@@ -157,7 +157,7 @@ export function registrarPedido(datosCliente) {
 
   try {
     guardarProductos(inventarioActualizado)
-  } catch (error) {
+  } catch {
     // Revertir el pedido si no se pudo guardar el inventario
     try {
       localStorage.setItem(

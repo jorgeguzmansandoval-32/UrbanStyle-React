@@ -9,10 +9,15 @@ async function parseResponse(response) {
 }
 
 async function request(url, options = {}) {
-  const response = await fetch(url, {
-    credentials: 'same-origin',
-    ...options
-  })
+  let response
+  try {
+    response = await fetch(url, {
+      credentials: 'same-origin',
+      ...options
+    })
+  } catch {
+    throw new Error('No pudimos conectar con UrbanStyle. Verifica tu conexión y que el servidor esté iniciado.')
+  }
   return parseResponse(response)
 }
 

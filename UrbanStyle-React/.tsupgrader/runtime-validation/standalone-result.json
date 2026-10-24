@@ -1,13 +1,13 @@
 {
-  "planHash": "865e7daa28d7c4b68e96b23026b694fa0a83ba0a0ad78622927e2b1c5e0bcac5",
+  "planHash": "ecf5b337f0cbdccdcfb753a4e3b5c7f22578d63d916009dedab294ff07c88a23",
   "phase": "standalone",
-  "recordedAtUtc": "2026-10-24T05:44:43.0192679Z",
+  "recordedAtUtc": "2026-10-24T06:56:00.0923251Z",
   "retryCount": 0,
   "resetBaseline": false,
   "complete": true,
   "result": {
     "setupSucceeded": true,
-    "setupDurationMs": 0,
+    "setupDurationMs": 62258,
     "setupFailureOutput": null,
     "assertions": [
       {
@@ -19,8 +19,8 @@
         "skipped": false,
         "skippedReason": null,
         "exitCode": 0,
-        "outputSample": "\r\n\u003E urbanstyle-react@0.0.0 build\r\n\u003E vite build\r\n\r\n\u001B[36mvite v8.3.2 \u001B[32mbuilding client environment for production...\u001B[36m\u001B[39m\r\ntransforming...\r\n\u2713 28 modules transformed.\r\nrendering chunks...\r\ncomputing gzip size...\r\ndist/assets/favicon-urbanstyle-DEgvLAzY.svg             0.40 kB \u2502 gzip:  0.26 kB\r\ndist/index.html                                         0.50 kB \u2502 gzip:  0.32 kB\r\ndist/assets/catalogo-cortaviento-tech-C39LdAPm.jpg     81.29 kB\r\ndist/assets/catalogo-pantalon-cargo-Cfx-W51f.jpg      140.53 kB\r\ndist/assets/catalogo-chaqueta-fur-4jR_jyfd.jpg        158.39 kB\r\ndist/assets/catalogo-chaqueta-racing-BBLYRX7U.jpg     194.72 kB\r\ndist/assets/catalogo-jeans-ripped-1ewtlN7A.jpg        200.63 kB\r\ndist/assets/LogoUrban-jNVqGrMj.png                    251.71 kB\r\ndist/assets/UrbanStyle-tienda-C8_OZCHY.jpg          1,206.21 kB\r\ndist/assets/index-D6sX8mFL.css                        256.17 kB \u2502 gzip: 36.79 kB\r\ndist/assets/index-BmfrhEpC.js                         261.87 kB \u2502 gzip: 78.56 kB\r\n\r\n\u001B[32m\u2713 built in 958ms\u001B[39m\r\n",
-        "durationMs": 3145
+        "outputSample": "\r\n\u003E urbanstyle-react@0.0.0 build\r\n\u003E vite build\r\n\r\n\u001B[36mvite v8.3.2 \u001B[32mbuilding client environment for production...\u001B[36m\u001B[39m\r\ntransforming...\r\n\u2713 30 modules transformed.\r\nrendering chunks...\r\ncomputing gzip size...\r\ndist/assets/favicon-urbanstyle-DEgvLAzY.svg             0.40 kB \u2502 gzip:  0.26 kB\r\ndist/index.html                                         0.50 kB \u2502 gzip:  0.32 kB\r\ndist/assets/local-streetwear-nosotros-ByHOX5G9.jpg     27.96 kB\r\ndist/assets/catalogo-cortaviento-tech-C39LdAPm.jpg     81.29 kB\r\ndist/assets/catalogo-pantalon-cargo-Cfx-W51f.jpg      140.53 kB\r\ndist/assets/catalogo-chaqueta-fur-4jR_jyfd.jpg        158.39 kB\r\ndist/assets/catalogo-chaqueta-racing-BBLYRX7U.jpg     194.72 kB\r\ndist/assets/catalogo-jeans-ripped-1ewtlN7A.jpg        200.63 kB\r\ndist/assets/LogoUrban-jNVqGrMj.png                    251.71 kB\r\ndist/assets/UrbanStyle-tienda-C8_OZCHY.jpg          1,206.21 kB\r\ndist/assets/index-DOpFqYPf.css                        259.11 kB \u2502 gzip: 37.42 kB\r\ndist/assets/index-CbWrS3jM.js                         269.23 kB \u2502 gzip: 80.32 kB\r\n\r\n\u001B[32m\u2713 built in 823ms\u001B[39m\r\n",
+        "durationMs": 2619
       },
       {
         "name": "lint",
@@ -31,56 +31,83 @@
         "skipped": false,
         "skippedReason": null,
         "exitCode": 0,
-        "outputSample": "\r\n\u003E urbanstyle-react@0.0.0 lint\r\n\u003E oxlint\r\n\r\nsrc/componentes/paginas/PagoExitosoPage.jsx:6:46: warning react(purity): Cannot call impure function during render help: \u0060Math.random\u0060 is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component re-renders\r\n",
-        "durationMs": 1596
-      },
-      {
-        "name": "home-page-serves",
-        "kind": "http-probe",
-        "verificationMethod": "http-status",
-        "passed": true,
-        "timedOut": false,
-        "skipped": false,
-        "skippedReason": null,
-        "exitCode": null,
-        "outputSample": "HTTP 200\n\u003C!doctype html\u003E\r\n\u003Chtml lang=\u0022en\u0022\u003E\r\n  \u003Chead\u003E\n    \u003Cscript type=\u0022module\u0022\u003Eimport { injectIntoGlobalHook } from \u0022/@react-refresh\u0022;\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () =\u003E {};\nwindow.$RefreshSig$ = () =\u003E (type) =\u003E type;\u003C/script\u003E\n\n    \u003Cscript type=\u0022module\u0022 src=\u0022/@vite/client\u0022\u003E\u003C/script\u003E\n\r\n    \u003Cmeta charset=\u0022UTF-8\u0022 /\u003E\r\n    \u003Clink rel=\u0022icon\u0022 type=\u0022image/svg\u002Bxml\u0022 href=\u0022/src/Imagen/favicon-urbanstyle.svg\u0022 /\u003E\r\n    \u003Cmeta name=\u0022viewport\u0022 content=\u0022width=device-width, initial-scale=1.0\u0022 /\u003E\r\n    \u003Ctitle\u003Eurbanstyle-react\u003C/title\u003E\r\n  \u003C/head\u003E\r\n  \u003Cbody\u003E\r\n    \u003Cdiv id=\u0022root\u0022\u003E\u003C/div\u003E\r\n    \u003Cscript type=\u0022module\u0022 src=\u0022/src/main.jsx\u0022\u003E\u003C/script\u003E\r\n  \u003C/body\u003E\r\n\u003C/html\u003E\r\n\n--- server output ---\n\r\n\u003E urbanstyle-react@0.0.0 dev:web\r\n\u003E vite --port 5180 --strictPort\r\n\r\n\r\n  \u001B[32m\u001B[1mVITE\u001B[22m v8.3.2\u001B[39m  \u001B[2mready in \u001B[0m\u001B[1m694\u001B[22m\u001B[2m\u001B[0m ms\u001B[22m\r\n\r\n  \u001B[32m\u279C\u001B[39m  \u001B[1mLocal\u001B[22m:   \u001B[36mhttp://localhost:\u001B[1m5180\u001B[22m/\u001B[39m\r\n\u001B[2m  \u001B[32m\u279C\u001B[39m  \u001B[1mNetwork\u001B[22m\u001B[2m: use \u001B[22m\u001B[1m--host\u001B[22m\u001B[2m to expose\u001B[22m\r\n",
-        "durationMs": 2261
-      },
-      {
-        "name": "product-catalog-api-serves",
-        "kind": "http-probe",
-        "verificationMethod": "http-status",
-        "passed": true,
-        "timedOut": false,
-        "skipped": false,
-        "skippedReason": null,
-        "exitCode": null,
-        "outputSample": "HTTP 200\n[{\u0022id\u0022:1,\u0022name\u0022:\u0022Chaqueta Urban Fur\u0022,\u0022description\u0022:\u0022Chaqueta negra de corte urbano con cuello de textura y cierre frontal.\u0022,\u0022price\u0022:45990,\u0022stock\u0022:12,\u0022category\u0022:\u0022Chaquetas\u0022,\u0022discountPercent\u0022:15,\u0022image\u0022:\u0022/catalogo-images/catalogo-chaqueta-fur.jpg\u0022,\u0022createdAt\u0022:\u00222026-10-24 05:33:39\u0022},{\u0022id\u0022:2,\u0022name\u0022:\u0022Chaqueta Racing Black\u0022,\u0022description\u0022:\u0022Chaqueta bomber negra con gr\u00E1fica deportiva y detalles reflectantes.\u0022,\u0022price\u0022:59990,\u0022stock\u0022:8,\u0022category\u0022:\u0022Chaquetas\u0022,\u0022discountPercent\u0022:10,\u0022image\u0022:\u0022/catalogo-images/catalogo-chaqueta-racing.jpg\u0022,\u0022createdAt\u0022:\u00222026-10-24 05:33:39\u0022},{\u0022id\u0022:3,\u0022name\u0022:\u0022Cortaviento Tech Grey\u0022,\u0022description\u0022:\u0022Cortaviento ligero gris con paneles contrastantes y silueta t\u00E9cnica.\u0022,\u0022price\u0022:49990,\u0022stock\u0022:15,\u0022category\u0022:\u0022Cortavientos\u0022,\u0022discountPercent\u0022:0,\u0022image\u0022:\u0022/catalogo-images/catalogo-cortaviento-tech.jpg\u0022,\u0022createdAt\u0022:\u00222026-10-24 05:33:39\u0022},{\u0022id\u0022:4,\u0022name\u0022:\u0022Jeans Ripped Black\u0022,\u0022description\u0022:\u0022Jeans negros de corte relajado con detalles desgastados y cadenas.\u0022,\u0022price\u0022:39990,\u0022stock\u0022:10,\u0022category\u0022:\u0022Pantalones\u0022,\u0022discountPercent\u0022:20,\u0022image\u0022:\u0022/catalogo-images/catalogo-jeans-ripped.jpg\u0022,\u0022createdAt\u0022:\u00222026-10-24 05:33:39\u0022},{\u0022id\u0022:5,\u0022name\u0022:\u0022Cargo Utility Grey\u0022,\u0022description\u0022:\u0022Pantal\u00F3n cargo gris de inspiraci\u00F3n utilitaria para un fit urbano.\u0022,\u0022price\u0022:44990,\u0022stock\u0022:6,\u0022category\u0022:\u0022Pantalones\u0022,\u0022discountPercent\u0022:0,\u0022image\u0022:\u0022/catalogo-images/catalogo-pantalon-cargo.jpg\u0022,\u0022createdAt\u0022:\u00222026-10-24 05:33:39\u0022}]\n--- server output ---\n\r\n\u003E urbanstyle-react@0.0.0 start\r\n\u003E node server/index.js\r\n\r\nUrbanStyle API disponible en http://localhost:3101\r\n",
-        "durationMs": 2108
+        "outputSample": "\r\n\u003E urbanstyle-react@0.0.0 lint\r\n\u003E oxlint\r\n\r\n",
+        "durationMs": 1517
       },
       {
         "name": "tests-pass",
         "kind": "process",
         "verificationMethod": "test-results",
-        "passed": false,
+        "passed": true,
         "timedOut": false,
         "skipped": false,
         "skippedReason": null,
-        "exitCode": 1,
-        "outputSample": "\r\n\u003E urbanstyle-react@0.0.0 test\r\n\u003E karma start karma.conf.cjs\r\n\r\nwebpack was not included as a framework in karma configuration, setting this automatically...\r\n\u001B[91m24 10 2026 02:44:42.575:ERROR [plugin]: \u001B[39mCannot load \u0022webpack\u0022!\r\n  TypeError: Cannot read properties of undefined (reading \u0027entry\u0027)\r\n    at KW_Preprocessor (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\karma-webpack\\lib\\karma-webpack\\preprocessor.js:67:24)\r\n    at Array.invoke (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\di\\lib\\injector.js:75:15)\r\n    at Injector.get (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\di\\lib\\injector.js:48:43)\r\n    at instantiatePlugin (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\karma\\lib\\plugin.js:78:20)\r\n    at C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\karma\\lib\\preprocessor.js:74:61\r\n    at Array.forEach (\u003Canonymous\u003E)\r\n    at createPriorityPreprocessor (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\karma\\lib\\preprocessor.js:74:43)\r\n    at Array.invoke (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\di\\lib\\injector.js:75:15)\r\n    at get (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\di\\lib\\injector.js:48:43)\r\n    at C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\di\\lib\\injector.js:71:14\r\n\u001B[91m24 10 2026 02:44:42.579:ERROR [plugin]: \u001B[39mCannot load \u0022sourcemap\u0022, it is not registered!\r\n  Perhaps you are missing some plugin?\r\n\u001B[33m24 10 2026 02:44:42.642:WARN [filelist]: \u001B[39mPattern \u0022C:/Users/franc/OneDrive/Escritorio/Proyecto react/UrbanStyle-React/UrbanStyle-React/src/test/**/*.test.jsx\u0022 does not match any file.\r\n\u001B[33m24 10 2026 02:44:42.643:WARN [filelist]: \u001B[39mPattern \u0022C:/Users/franc/OneDrive/Escritorio/Proyecto react/UrbanStyle-React/UrbanStyle-React/src/test/**/*.test.js\u0022 does not match any file.\r\n\u001B[91m24 10 2026 02:44:42.657:ERROR [karma-server]: \u001B[39mError during file loading or preprocessing\r\nTypeError: process is not a function\r\n    at executeProcessor (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\karma\\lib\\preprocessor.js:47:11)\r\n    at runProcessors (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\karma\\lib\\preprocessor.js:60:23)\r\n    at FileList.preprocess [as _preprocess] (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\karma\\lib\\preprocessor.js:106:11)\r\n    at async Promise.all (index 1)\r\n    at async C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\karma\\lib\\file-list.js:90:11\r\n    at async Promise.all (index 5)\r\n\u001B[32m24 10 2026 02:44:42.659:INFO [karma-server]: \u001B[39mKarma v6.4.4 server started at http://localhost:9876/\r\n\u001B[32m24 10 2026 02:44:42.660:INFO [launcher]: \u001B[39mLaunching browsers Chrome with concurrency unlimited\r\n\u001B[91m24 10 2026 02:44:42.660:ERROR [karma-server]: \u001B[39mError: Found 2 load errors\r\n    at Server.\u003Canonymous\u003E (C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\node_modules\\karma\\lib\\server.js:243:26)\r\n    at Server.wrapper (node:events:639:12)\r\n    at Server.emit (node:events:526:24)\r\n    at emitListeningNT (node:net:2485:10)\r\n    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)\r\n",
-        "durationMs": 4228,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E urbanstyle-react@0.0.0 test\r\n\u003E karma start karma.conf.cjs\r\n\r\nWebpack bundling...\r\nasset \u001B[1m\u001B[32mcommons.js\u001B[39m\u001B[22m 7.57 MiB \u001B[1m\u001B[32m[emitted]\u001B[39m\u001B[22m (name: commons) (id hint: commons)\r\nasset \u001B[1m\u001B[32mruntime.js\u001B[39m\u001B[22m 16 KiB \u001B[1m\u001B[32m[emitted]\u001B[39m\u001B[22m (name: runtime)\r\nasset \u001B[1m\u001B[32mValidaciones.spec.4076410422.js\u001B[39m\u001B[22m 461 bytes \u001B[1m\u001B[32m[emitted]\u001B[39m\u001B[22m (name: Validaciones.spec.4076410422)\r\nasset \u001B[1m\u001B[32mProductos.spec.2867298205.js\u001B[39m\u001B[22m 456 bytes \u001B[1m\u001B[32m[emitted]\u001B[39m\u001B[22m (name: Productos.spec.2867298205)\r\nasset \u001B[1m\u001B[32mCarrito.spec.391828223.js\u001B[39m\u001B[22m 450 bytes \u001B[1m\u001B[32m[emitted]\u001B[39m\u001B[22m (name: Carrito.spec.391828223)\r\nasset \u001B[1m\u001B[32mApp.spec.3599942462.js\u001B[39m\u001B[22m 444 bytes \u001B[1m\u001B[32m[emitted]\u001B[39m\u001B[22m (name: App.spec.3599942462)\r\nEntrypoint \u001B[1mApp.spec.3599942462\u001B[39m\u001B[22m 7.59 MiB = \u001B[1m\u001B[32mruntime.js\u001B[39m\u001B[22m 16 KiB \u001B[1m\u001B[32mcommons.js\u001B[39m\u001B[22m 7.57 MiB \u001B[1m\u001B[32mApp.spec.3599942462.js\u001B[39m\u001B[22m 444 bytes\r\nEntrypoint \u001B[1mProductos.spec.2867298205\u001B[39m\u001B[22m 7.59 MiB = \u001B[1m\u001B[32mruntime.js\u001B[39m\u001B[22m 16 KiB \u001B[1m\u001B[32mcommons.js\u001B[39m\u001B[22m 7.57 MiB \u001B[1m\u001B[32mProductos.spec.2867298205.js\u001B[39m\u001B[22m 456 bytes\r\nEntrypoint \u001B[1mCarrito.spec.391828223\u001B[39m\u001B[22m 7.59 MiB = \u001B[1m\u001B[32mruntime.js\u001B[39m\u001B[22m 16 KiB \u001B[1m\u001B[32mcommons.js\u001B[39m\u001B[22m 7.57 MiB \u001B[1m\u001B[32mCarrito.spec.391828223.js\u001B[39m\u001B[22m 450 bytes\r\nEntrypoint \u001B[1mValidaciones.spec.4076410422\u001B[39m\u001B[22m 7.59 MiB = \u001B[1m\u001B[32mruntime.js\u001B[39m\u001B[22m 16 KiB \u001B[1m\u001B[32mcommons.js\u001B[39m\u001B[22m 7.57 MiB \u001B[1m\u001B[32mValidaciones.spec.4076410422.js\u001B[39m\u001B[22m 461 bytes\r\nwebpack 5.112.2 compiled \u001B[1m\u001B[32msuccessfully\u001B[39m\u001B[22m in 3705 ms\r\n\u001B[32m24 10 2026 03:55:53.834:INFO [karma-server]: \u001B[39mKarma v6.4.4 server started at http://localhost:9876/\r\n\u001B[32m24 10 2026 03:55:53.835:INFO [launcher]: \u001B[39mLaunching browsers ChromeHeadless with concurrency unlimited\r\n\u001B[32m24 10 2026 03:55:53.857:INFO [launcher]: \u001B[39mStarting browser ChromeHeadless\r\n\u001B[32m24 10 2026 03:55:55.356:INFO [Chrome Headless 155.0.0.0 (Windows 10)]: \u001B[39mConnected on socket 95UzU5oTqkJAYqCmAAAA with id 15722148\r\nChrome Headless 155.0.0.0 (Windows 10): Executed 0 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 1 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.005 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 2 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.006 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 3 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.007 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 4 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.008 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 5 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.008 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 6 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.008 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 7 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.009 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 8 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.01 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 9 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.011 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 10 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.012 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 11 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.012 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 12 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.012 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 13 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.012 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 14 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.012 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 15 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.013 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 16 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.013 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 17 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.014 secs)\r\n\u001B[1A\u001B[2KChrome Headless 155.0.0.0 (Windows 10): Executed 18 of 31\u001B[32m SUCCESS\u001B[39m (0 secs / 0.014 secs)\r\n\u001B[1A\u001B[2KC\n\u2026[truncated]",
+        "durationMs": 10683,
         "testResults": {
-          "testFramework": "unknown",
-          "runnerDetectedFrom": "none",
+          "testFramework": "jasmine",
+          "runnerDetectedFrom": "package_json",
           "testsTotal": 0,
           "testsPassed": 0,
           "testsFailed": 0,
           "testsSkipped": 0,
           "parseFailed": true
         }
+      },
+      {
+        "name": "seed-images-exist",
+        "kind": "process",
+        "verificationMethod": "exit-code",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E urbanstyle-react@0.0.0 verify:seeds\r\n\u003E node scripts/verify-seeds.js\r\n\r\n",
+        "durationMs": 1429
+      },
+      {
+        "name": "purchase-flow-and-database-persistence",
+        "kind": "process",
+        "verificationMethod": "exit-code",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E urbanstyle-react@0.0.0 test:e2e\r\n\u003E node scripts/e2e-purchase.js\r\n\r\n",
+        "durationMs": 1805
       }
     ],
     "executions": [
+      {
+        "source": "setup[0]",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "ci",
+          "--no-audit",
+          "--no-fund"
+        ],
+        "cwd": "C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\UrbanStyle-React",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "devServer",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "run",
+          "start:validation"
+        ],
+        "cwd": "C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\UrbanStyle-React",
+        "env": {
+          "PORT": "3100"
+        },
+        "prependPath": [],
+        "platform": "win32"
+      },
       {
         "source": "production-build",
         "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
@@ -106,36 +133,6 @@
         "platform": "win32"
       },
       {
-        "source": "home-page-serves",
-        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
-        "args": [
-          "run",
-          "dev:web",
-          "--",
-          "--port",
-          "5180",
-          "--strictPort"
-        ],
-        "cwd": "C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\UrbanStyle-React",
-        "env": {},
-        "prependPath": [],
-        "platform": "win32"
-      },
-      {
-        "source": "product-catalog-api-serves",
-        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
-        "args": [
-          "run",
-          "start"
-        ],
-        "cwd": "C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\UrbanStyle-React",
-        "env": {
-          "PORT": "3101"
-        },
-        "prependPath": [],
-        "platform": "win32"
-      },
-      {
         "source": "tests-pass",
         "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
         "args": [
@@ -143,6 +140,32 @@
         ],
         "cwd": "C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\UrbanStyle-React",
         "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "seed-images-exist",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "run",
+          "verify:seeds"
+        ],
+        "cwd": "C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\UrbanStyle-React",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "purchase-flow-and-database-persistence",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "run",
+          "test:e2e"
+        ],
+        "cwd": "C:\\Users\\franc\\OneDrive\\Escritorio\\Proyecto react\\UrbanStyle-React\\UrbanStyle-React",
+        "env": {
+          "URBANSTYLE_E2E_URL": "http://127.0.0.1:3100"
+        },
         "prependPath": [],
         "platform": "win32"
       }

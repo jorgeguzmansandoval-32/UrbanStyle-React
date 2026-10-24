@@ -13,6 +13,11 @@ import {
   obtenerPrecioConDescuento
 } from './data/productos'
 import {
+  validarAcceso,
+  validarDatosEnvio,
+  validarRegistroCliente
+} from './data/validaciones'
+import {
   actualizarProductoApi,
   cerrarSesionCliente,
   cerrarSesionAdmin,
@@ -66,6 +71,46 @@ function categoriaProducto(producto) {
   return 'Chaquetas'
 }
 
+function textoParaBusqueda(value) {
+  return `${value || ''}`
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('es-CL')
+}
+
+const ETIQUETAS_CAMPOS = {
+  name: 'Nombre',
+  email: 'Correo electrónico',
+  password: 'Contraseña',
+  phone: 'Teléfono',
+  address: 'Dirección',
+  address2: 'Referencia',
+  city: 'Comuna',
+  region: 'Región',
+  notes: 'Instrucciones de entrega'
+}
+
+function ResumenErrores({ errores }) {
+  const campos = Object.entries(errores)
+  if (!campos.length) return null
+
+  return (
+    <div className="validation-summary" role="alert">
+      <strong>Revisa estos datos antes de continuar:</strong>
+      <ul>
+        {campos.map(([campo, mensaje]) => (
+          <li key={campo}>{ETIQUETAS_CAMPOS[campo] || campo}: {mensaje}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function ErrorCampo({ campo, errores }) {
+  if (!errores[campo]) return null
+  return <span className="field-error" id={`error-${campo}`}>{errores[campo]}</span>
+}
+
 function TarjetaProducto({ producto, onAgregar, onDetalle }) {
   const descuento = obtenerDescuento(producto)
   const precio = obtenerPrecioConDescuento(producto)
@@ -109,6 +154,7 @@ function App() {
   const [productos, setProductos] = useState([])
   const [carrito, setCarrito] = useState(obtenerCarrito)
   const [categoriaActiva, setCategoriaActiva] = useState('Todas')
+  const [busquedaCatalogo, setBusquedaCatalogo] = useState('')
   const [panelActivo, setPanelActivo] = useState('')
   const [productoDetalle, setProductoDetalle] = useState(null)
   const [usuario, setUsuario] = useState(null)
@@ -117,6 +163,11 @@ function App() {
   const [bolsaAnimada, setBolsaAnimada] = useState(false)
   const [error, setError] = useState('')
   const [cargandoProductos, setCargandoProductos] = useState(true)
+  const [cargandoAdmin, setCargandoAdmin] = useState(false)
+  const [enviandoAcceso, setEnviandoAcceso] = useState(false)
+  const [enviandoRegistro, setEnviandoRegistro] = useState(false)
+  const [enviandoPedido, setEnviandoPedido] = useState(false)
+  const [erroresValidacion, setErroresValidacion] = useState({})
   const [formularioLogin, setFormularioLogin] = useState({ email: '', password: '' })
   const [modoAcceso, setModoAcceso] = useState('customer')
   const [formularioRegistro, setFormularioRegistro] = useState({
@@ -181,20 +232,35 @@ function App() {
 
   useEffect(() => {
     if (panelActivo !== 'admin' || !isAdmin) return
+    let cancelled = false
     Promise.all([obtenerDashboardAdmin(), obtenerPedidosAdmin()])
       .then(([resumen, pedidos]) => {
+        if (cancelled) return
         setResumenAdmin(resumen)
         setPedidosAdmin(pedidos)
       })
-      .catch((dashboardError) => setError(dashboardError.message))
+      .catch((dashboardError) => {
+        if (!cancelled) setError(`No se pudo cargar la administración: ${dashboardError.message}`)
+      })
+      .finally(() => {
+        if (!cancelled) setCargandoAdmin(false)
+      })
+    return () => {
+      cancelled = true
+    }
   }, [panelActivo, isAdmin, productos])
 
-  const productosFiltrados = useMemo(
-    () => categoriaActiva === 'Todas'
-      ? productos
-      : productos.filter((producto) => categoriaProducto(producto) === categoriaActiva),
-    [categoriaActiva, productos]
-  )
+  const productosFiltrados = useMemo(() => {
+    const busqueda = textoParaBusqueda(busquedaCatalogo.trim())
+    return productos.filter((producto) => {
+      const coincideCategoria = categoriaActiva === 'Todas' ||
+        categoriaProducto(producto) === categoriaActiva
+      const coincideBusqueda = !busqueda || textoParaBusqueda(
+        `${producto.name || producto.nombre} ${producto.description || ''} ${categoriaProducto(producto)}`
+      ).includes(busqueda)
+      return coincideCategoria && coincideBusqueda
+    })
+  }, [busquedaCatalogo, categoriaActiva, productos])
   const ofertas = useMemo(
     () => productos.filter((producto) => obtenerDescuento(producto) > 0),
     [productos]
@@ -204,6 +270,16 @@ function App() {
 
   function actualizarCarrito() {
     setCarrito(obtenerCarrito())
+  }
+
+  function actualizarCampo(setter, campo, valor) {
+    setter((actual) => ({ ...actual, [campo]: valor }))
+    setErroresValidacion((actuales) => {
+      if (!actuales[campo]) return actuales
+      const siguientes = { ...actuales }
+      delete siguientes[campo]
+      return siguientes
+    })
   }
 
   function manejarAgregar(id) {
@@ -237,16 +313,13 @@ function App() {
 
     const email = formularioLogin.email.trim().toLowerCase()
     const { password } = formularioLogin
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Ingresa un correo electrónico válido.')
-      return
-    }
-    if (password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres.')
+    const errores = validarAcceso({ email, password })
+    setErroresValidacion(errores)
+    if (Object.keys(errores).length) {
       return
     }
 
+    setEnviandoAcceso(true)
     try {
       const result = modoAcceso === 'admin'
         ? await iniciarSesionAdmin(email, password)
@@ -262,6 +335,8 @@ function App() {
         : 'Sesión de cliente iniciada.')
     } catch (loginError) {
       setError(loginError.message)
+    } finally {
+      setEnviandoAcceso(false)
     }
   }
 
@@ -269,6 +344,11 @@ function App() {
     event.preventDefault()
     setError('')
     setMensaje('')
+    const errores = validarRegistroCliente(formularioRegistro)
+    setErroresValidacion(errores)
+    if (Object.keys(errores).length) return
+
+    setEnviandoRegistro(true)
     try {
       const { password, ...customerDetails } = formularioRegistro
       const result = await registrarCliente({ ...customerDetails, password })
@@ -279,6 +359,8 @@ function App() {
       setMensaje('Cuenta creada. Tus datos de envío quedaron guardados.')
     } catch (registrationError) {
       setError(registrationError.message)
+    } finally {
+      setEnviandoRegistro(false)
     }
   }
 
@@ -313,7 +395,9 @@ function App() {
         stock: Number(formularioProducto.stock),
         discountPercent: Number(formularioProducto.discountPercent)
       }, imagenProducto)
-      setProductos(await obtenerProductosApi())
+      const productosActualizados = await obtenerProductosApi()
+      setCargandoAdmin(true)
+      setProductos(productosActualizados)
       setFormularioProducto(FORMULARIO_INICIAL)
       setImagenProducto(null)
       event.target.reset()
@@ -332,30 +416,12 @@ function App() {
         ...producto,
         stock: Number(stockEditado[producto.id] ?? producto.stock)
       })
-      setProductos(await obtenerProductosApi())
+      const productosActualizados = await obtenerProductosApi()
+      setCargandoAdmin(true)
+      setProductos(productosActualizados)
       setMensaje('Stock actualizado correctamente.')
     } catch (updateError) {
       setError(updateError.message)
-    }
-  }
-
-  async function manejarConfirmarPedido(event) {
-    event.preventDefault()
-    setError('')
-    try {
-      const { order } = await crearPedido({
-        shippingDetails: {
-          ...datosEnvio,
-          email: usuario?.role === 'customer' ? usuario.email : datosEnvio.email
-        },
-        items: carrito.map((item) => ({ id: item.id, quantity: item.quantity }))
-      })
-      setPedidoCreado(order)
-      guardarCarrito([])
-      actualizarCarrito()
-      setPanelActivo('checkout-success')
-    } catch (orderError) {
-      setError(orderError.message)
     }
   }
 
@@ -366,7 +432,9 @@ function App() {
     setProductoAviso(null)
     try {
       await eliminarProductoApi(id)
-      setProductos(await obtenerProductosApi())
+      const productosActualizados = await obtenerProductosApi()
+      setCargandoAdmin(true)
+      setProductos(productosActualizados)
       setMensaje('La prenda se eliminó del catálogo.')
     } catch (e) {
       setError(e.message)
@@ -376,19 +444,25 @@ function App() {
   function manejarCheckout() {
     setError('')
     setPedidoCreado(null)
+    setErroresValidacion({})
     setPanelActivo('checkout')
   }
 
   async function manejarConfirmarPedido(event) {
     event.preventDefault()
     setError('')
+    const detallesEnvio = {
+      ...datosEnvio,
+      email: usuario?.role === 'customer' ? usuario.email : datosEnvio.email
+    }
+    const errores = validarDatosEnvio(detallesEnvio)
+    setErroresValidacion(errores)
+    if (Object.keys(errores).length) return
 
+    setEnviandoPedido(true)
     try {
       const { order } = await crearPedido({
-        shippingDetails: {
-          ...datosEnvio,
-          email: usuario?.role === 'customer' ? usuario.email : datosEnvio.email
-        },
+        shippingDetails: detallesEnvio,
         items: carrito.map((item) => ({ id: item.id, quantity: item.quantity }))
       })
       setPedidoCreado(order)
@@ -397,6 +471,8 @@ function App() {
       setPanelActivo('checkout-success')
     } catch (orderError) {
       setError(orderError.message)
+    } finally {
+      setEnviandoPedido(false)
     }
   }
 
@@ -423,6 +499,7 @@ function App() {
   function abrirAdministracion() {
     if (!isAdmin) return
     setPestanaAdmin('dashboard')
+    setCargandoAdmin(true)
     setPanelActivo('admin')
   }
 
@@ -623,10 +700,20 @@ function App() {
             </button>
           ))}
         </div>
+        <label className="catalog-search">
+          <span>Buscar en el catálogo</span>
+          <input
+            type="search"
+            value={busquedaCatalogo}
+            onChange={(event) => setBusquedaCatalogo(event.target.value)}
+            placeholder="Ej.: chaqueta, polera, jeans…"
+            aria-label="Buscar productos por nombre, descripción o categoría"
+          />
+        </label>
 
         {error && !panelActivo && <p className="store-error" role="alert">{error}</p>}
         {cargandoProductos ? (
-          <p className="empty-category" role="status">Cargando catálogo…</p>
+          <p className="loading-message" role="status"><span className="loading-spinner" aria-hidden="true" /> Cargando catálogo…</p>
         ) : productosFiltrados.length ? (
           <div className="productos-grid store-product-grid">
             {productosFiltrados.map((producto) => (
@@ -673,39 +760,60 @@ function App() {
               <button type="button" className={modoAcceso === 'customer' ? 'is-active' : ''} onClick={() => {
                 setModoAcceso('customer')
                 setError('')
+                setErroresValidacion({})
               }}>Cliente</button>
               <button type="button" className={modoAcceso === 'register' ? 'is-active' : ''} onClick={() => {
                 setModoAcceso('register')
                 setError('')
+                setErroresValidacion({})
               }}>Crear cuenta</button>
               <button type="button" className={modoAcceso === 'admin' ? 'is-active' : ''} onClick={() => {
                 setModoAcceso('admin')
                 setError('')
+                setErroresValidacion({})
               }}>Admin</button>
             </div>
             {modoAcceso === 'register' ? (
-              <form className="store-form customer-register-form" onSubmit={manejarRegistroCliente}>
+              <form className="store-form customer-register-form" onSubmit={manejarRegistroCliente} noValidate>
+                <ResumenErrores errores={erroresValidacion} />
                 <label htmlFor="register-name">Nombre completo</label>
-                <input id="register-name" autoComplete="name" maxLength={100} value={formularioRegistro.name} onChange={(event) => setFormularioRegistro({ ...formularioRegistro, name: event.target.value })} required />
+                <input id="register-name" autoComplete="name" maxLength={100} value={formularioRegistro.name} onChange={(event) => actualizarCampo(setFormularioRegistro, 'name', event.target.value)} aria-invalid={Boolean(erroresValidacion.name)} aria-describedby={erroresValidacion.name ? 'error-name' : undefined} required />
+                <ErrorCampo campo="name" errores={erroresValidacion} />
                 <label htmlFor="register-email">Correo electrónico</label>
-                <input id="register-email" type="email" autoComplete="email" maxLength={254} value={formularioRegistro.email} onChange={(event) => setFormularioRegistro({ ...formularioRegistro, email: event.target.value })} required />
+                <input id="register-email" type="email" autoComplete="email" maxLength={254} value={formularioRegistro.email} onChange={(event) => actualizarCampo(setFormularioRegistro, 'email', event.target.value)} aria-invalid={Boolean(erroresValidacion.email)} aria-describedby={erroresValidacion.email ? 'error-email' : undefined} required />
+                <ErrorCampo campo="email" errores={erroresValidacion} />
                 <label htmlFor="register-password">Contraseña (mínimo 8 caracteres)</label>
-                <input id="register-password" type="password" autoComplete="new-password" minLength={8} maxLength={200} value={formularioRegistro.password} onChange={(event) => setFormularioRegistro({ ...formularioRegistro, password: event.target.value })} required />
+                <input id="register-password" type="password" autoComplete="new-password" minLength={8} maxLength={200} value={formularioRegistro.password} onChange={(event) => actualizarCampo(setFormularioRegistro, 'password', event.target.value)} aria-invalid={Boolean(erroresValidacion.password)} aria-describedby={erroresValidacion.password ? 'error-password' : undefined} required />
+                <ErrorCampo campo="password" errores={erroresValidacion} />
                 <label htmlFor="register-phone">Teléfono</label>
-                <input id="register-phone" type="tel" autoComplete="tel" maxLength={30} value={formularioRegistro.phone} onChange={(event) => setFormularioRegistro({ ...formularioRegistro, phone: event.target.value })} required />
+                <input id="register-phone" type="tel" autoComplete="tel" maxLength={30} value={formularioRegistro.phone} onChange={(event) => actualizarCampo(setFormularioRegistro, 'phone', event.target.value)} aria-invalid={Boolean(erroresValidacion.phone)} aria-describedby={erroresValidacion.phone ? 'error-phone' : undefined} required />
+                <ErrorCampo campo="phone" errores={erroresValidacion} />
                 <label htmlFor="register-address">Dirección de envío</label>
-                <input id="register-address" autoComplete="street-address" maxLength={180} value={formularioRegistro.address} onChange={(event) => setFormularioRegistro({ ...formularioRegistro, address: event.target.value })} required />
+                <input id="register-address" autoComplete="street-address" maxLength={180} value={formularioRegistro.address} onChange={(event) => actualizarCampo(setFormularioRegistro, 'address', event.target.value)} aria-invalid={Boolean(erroresValidacion.address)} aria-describedby={erroresValidacion.address ? 'error-address' : undefined} required />
+                <ErrorCampo campo="address" errores={erroresValidacion} />
                 <label htmlFor="register-address2">Departamento, casa o referencia (opcional)</label>
-                <input id="register-address2" maxLength={180} value={formularioRegistro.address2} onChange={(event) => setFormularioRegistro({ ...formularioRegistro, address2: event.target.value })} />
+                <input id="register-address2" maxLength={180} value={formularioRegistro.address2} onChange={(event) => actualizarCampo(setFormularioRegistro, 'address2', event.target.value)} aria-invalid={Boolean(erroresValidacion.address2)} aria-describedby={erroresValidacion.address2 ? 'error-address2' : undefined} />
+                <ErrorCampo campo="address2" errores={erroresValidacion} />
                 <div className="shipping-form-grid">
-                  <div><label htmlFor="register-city">Comuna</label><input id="register-city" autoComplete="address-level2" maxLength={100} value={formularioRegistro.city} onChange={(event) => setFormularioRegistro({ ...formularioRegistro, city: event.target.value })} required /></div>
-                  <div><label htmlFor="register-region">Región</label><input id="register-region" autoComplete="address-level1" maxLength={100} value={formularioRegistro.region} onChange={(event) => setFormularioRegistro({ ...formularioRegistro, region: event.target.value })} required /></div>
+                  <div>
+                    <label htmlFor="register-city">Comuna</label>
+                    <input id="register-city" autoComplete="address-level2" maxLength={100} value={formularioRegistro.city} onChange={(event) => actualizarCampo(setFormularioRegistro, 'city', event.target.value)} aria-invalid={Boolean(erroresValidacion.city)} aria-describedby={erroresValidacion.city ? 'error-city' : undefined} required />
+                    <ErrorCampo campo="city" errores={erroresValidacion} />
+                  </div>
+                  <div>
+                    <label htmlFor="register-region">Región</label>
+                    <input id="register-region" autoComplete="address-level1" maxLength={100} value={formularioRegistro.region} onChange={(event) => actualizarCampo(setFormularioRegistro, 'region', event.target.value)} aria-invalid={Boolean(erroresValidacion.region)} aria-describedby={erroresValidacion.region ? 'error-region' : undefined} required />
+                    <ErrorCampo campo="region" errores={erroresValidacion} />
+                  </div>
                 </div>
                 {error && <p className="store-error" role="alert">{error}</p>}
-                <button className="form-submit" type="submit">Crear cuenta <span>→</span></button>
+                <button className="form-submit" type="submit" disabled={enviandoRegistro}>
+                  {enviandoRegistro ? 'Creando cuenta…' : 'Crear cuenta'} <span>{enviandoRegistro ? <span className="loading-spinner" aria-hidden="true" /> : '→'}</span>
+                </button>
               </form>
             ) : (
-              <form className="store-form" onSubmit={manejarLogin}>
+              <form className="store-form" onSubmit={manejarLogin} noValidate>
+                <ResumenErrores errores={erroresValidacion} />
                 <label htmlFor="login-email">Correo electrónico</label>
                 <input
                   id="login-email"
@@ -714,9 +822,12 @@ function App() {
                   autoComplete="email"
                   placeholder={modoAcceso === 'admin' ? 'admin@urbanstyle.cl' : 'tu@correo.com'}
                   value={formularioLogin.email}
-                  onChange={(event) => setFormularioLogin({ ...formularioLogin, email: event.target.value })}
+                  onChange={(event) => actualizarCampo(setFormularioLogin, 'email', event.target.value)}
+                  aria-invalid={Boolean(erroresValidacion.email)}
+                  aria-describedby={erroresValidacion.email ? 'error-email' : undefined}
                   required
                 />
+                <ErrorCampo campo="email" errores={erroresValidacion} />
                 <label htmlFor="login-password">Contraseña</label>
                 <input
                   id="login-password"
@@ -725,13 +836,17 @@ function App() {
                   autoComplete="current-password"
                   placeholder="Mínimo 8 caracteres"
                   value={formularioLogin.password}
-                  onChange={(event) => setFormularioLogin({ ...formularioLogin, password: event.target.value })}
+                  onChange={(event) => actualizarCampo(setFormularioLogin, 'password', event.target.value)}
+                  aria-invalid={Boolean(erroresValidacion.password)}
+                  aria-describedby={erroresValidacion.password ? 'error-password' : undefined}
                   minLength={8}
                   required
                 />
+                <ErrorCampo campo="password" errores={erroresValidacion} />
                 {error && <p className="store-error" role="alert">{error}</p>}
-                <button className="form-submit" type="submit">
-                  {modoAcceso === 'admin' ? 'Entrar al panel' : 'Iniciar sesión'} <span>→</span>
+                <button className="form-submit" type="submit" disabled={enviandoAcceso}>
+                  {enviandoAcceso ? 'Validando…' : modoAcceso === 'admin' ? 'Entrar al panel' : 'Iniciar sesión'}
+                  <span>{enviandoAcceso ? <span className="loading-spinner" aria-hidden="true" /> : '→'}</span>
                 </button>
               </form>
             )}
@@ -867,13 +982,15 @@ function App() {
                 </div>
               ))}
             </div>
-            <form className="store-form shipping-form" onSubmit={manejarConfirmarPedido}>
+            <form className="store-form shipping-form" onSubmit={manejarConfirmarPedido} noValidate>
               <h3>Datos de envío</h3>
+              <ResumenErrores errores={erroresValidacion} />
               {usuario?.role === 'customer' && (
                 <p className="saved-address-hint">Sesión iniciada: usamos los datos de tu cuenta; puedes actualizar la dirección para este pedido.</p>
               )}
               <label htmlFor="shipping-name">Nombre completo</label>
-              <input id="shipping-name" autoComplete="name" maxLength={100} value={datosEnvio.name} onChange={(event) => setDatosEnvio({ ...datosEnvio, name: event.target.value })} required />
+              <input id="shipping-name" autoComplete="name" maxLength={100} value={datosEnvio.name} onChange={(event) => actualizarCampo(setDatosEnvio, 'name', event.target.value)} aria-invalid={Boolean(erroresValidacion.name)} aria-describedby={erroresValidacion.name ? 'error-name' : undefined} required />
+              <ErrorCampo campo="name" errores={erroresValidacion} />
               <label htmlFor="shipping-email">Correo electrónico</label>
               <input
                 id="shipping-email"
@@ -881,29 +998,47 @@ function App() {
                 autoComplete="email"
                 maxLength={254}
                 value={usuario?.role === 'customer' ? usuario.email : datosEnvio.email}
-                onChange={(event) => setDatosEnvio({ ...datosEnvio, email: event.target.value })}
+                onChange={(event) => actualizarCampo(setDatosEnvio, 'email', event.target.value)}
+                aria-invalid={Boolean(erroresValidacion.email)}
+                aria-describedby={erroresValidacion.email ? 'error-email' : undefined}
                 readOnly={usuario?.role === 'customer'}
                 required
               />
+              <ErrorCampo campo="email" errores={erroresValidacion} />
               <label htmlFor="shipping-phone">Teléfono de contacto</label>
-              <input id="shipping-phone" type="tel" autoComplete="tel" maxLength={30} value={datosEnvio.phone} onChange={(event) => setDatosEnvio({ ...datosEnvio, phone: event.target.value })} required />
+              <input id="shipping-phone" type="tel" autoComplete="tel" maxLength={30} value={datosEnvio.phone} onChange={(event) => actualizarCampo(setDatosEnvio, 'phone', event.target.value)} aria-invalid={Boolean(erroresValidacion.phone)} aria-describedby={erroresValidacion.phone ? 'error-phone' : undefined} required />
+              <ErrorCampo campo="phone" errores={erroresValidacion} />
               <label htmlFor="shipping-address">Dirección</label>
-              <input id="shipping-address" autoComplete="street-address" maxLength={180} value={datosEnvio.address} onChange={(event) => setDatosEnvio({ ...datosEnvio, address: event.target.value })} required />
+              <input id="shipping-address" autoComplete="street-address" maxLength={180} value={datosEnvio.address} onChange={(event) => actualizarCampo(setDatosEnvio, 'address', event.target.value)} aria-invalid={Boolean(erroresValidacion.address)} aria-describedby={erroresValidacion.address ? 'error-address' : undefined} required />
+              <ErrorCampo campo="address" errores={erroresValidacion} />
               <label htmlFor="shipping-address2">Departamento, casa o referencia (opcional)</label>
-              <input id="shipping-address2" maxLength={180} value={datosEnvio.address2} onChange={(event) => setDatosEnvio({ ...datosEnvio, address2: event.target.value })} />
+              <input id="shipping-address2" maxLength={180} value={datosEnvio.address2} onChange={(event) => actualizarCampo(setDatosEnvio, 'address2', event.target.value)} aria-invalid={Boolean(erroresValidacion.address2)} aria-describedby={erroresValidacion.address2 ? 'error-address2' : undefined} />
+              <ErrorCampo campo="address2" errores={erroresValidacion} />
               <div className="shipping-form-grid">
-                <div><label htmlFor="shipping-city">Comuna</label><input id="shipping-city" autoComplete="address-level2" maxLength={100} value={datosEnvio.city} onChange={(event) => setDatosEnvio({ ...datosEnvio, city: event.target.value })} required /></div>
-                <div><label htmlFor="shipping-region">Región</label><input id="shipping-region" autoComplete="address-level1" maxLength={100} value={datosEnvio.region} onChange={(event) => setDatosEnvio({ ...datosEnvio, region: event.target.value })} required /></div>
+                <div>
+                  <label htmlFor="shipping-city">Comuna</label>
+                  <input id="shipping-city" autoComplete="address-level2" maxLength={100} value={datosEnvio.city} onChange={(event) => actualizarCampo(setDatosEnvio, 'city', event.target.value)} aria-invalid={Boolean(erroresValidacion.city)} aria-describedby={erroresValidacion.city ? 'error-city' : undefined} required />
+                  <ErrorCampo campo="city" errores={erroresValidacion} />
+                </div>
+                <div>
+                  <label htmlFor="shipping-region">Región</label>
+                  <input id="shipping-region" autoComplete="address-level1" maxLength={100} value={datosEnvio.region} onChange={(event) => actualizarCampo(setDatosEnvio, 'region', event.target.value)} aria-invalid={Boolean(erroresValidacion.region)} aria-describedby={erroresValidacion.region ? 'error-region' : undefined} required />
+                  <ErrorCampo campo="region" errores={erroresValidacion} />
+                </div>
               </div>
               <label htmlFor="shipping-notes">Instrucciones para la entrega (opcional)</label>
-              <textarea id="shipping-notes" rows="2" maxLength={300} value={datosEnvio.notes} onChange={(event) => setDatosEnvio({ ...datosEnvio, notes: event.target.value })} />
+              <textarea id="shipping-notes" rows="2" maxLength={300} value={datosEnvio.notes} onChange={(event) => actualizarCampo(setDatosEnvio, 'notes', event.target.value)} aria-invalid={Boolean(erroresValidacion.notes)} aria-describedby={erroresValidacion.notes ? 'error-notes' : undefined} />
+              <ErrorCampo campo="notes" errores={erroresValidacion} />
               <div className="cart-summary checkout-totals">
                 <div><span>Subtotal</span><strong>{formatearPrecio(totales.subtotal)}</strong></div>
                 <div><span>Envío</span><strong>{formatearPrecio(totales.envio)}</strong></div>
                 <div className="cart-total"><span>Total</span><strong>{formatearPrecio(totales.total)}</strong></div>
               </div>
               <p className="checkout-disclaimer">Esto guarda un pedido pendiente de pago para la demostración. No se cobra ni se envía hasta integrar una pasarela de pago.</p>
-              <button type="submit" className="form-submit" disabled={!carrito.length}>Guardar pedido de prueba <span>→</span></button>
+              <button type="submit" className="form-submit" disabled={!carrito.length || enviandoPedido}>
+                {enviandoPedido ? 'Guardando pedido…' : 'Guardar pedido de prueba'}
+                <span>{enviandoPedido ? <span className="loading-spinner" aria-hidden="true" /> : '→'}</span>
+              </button>
             </form>
           </section>
         </div>
@@ -953,11 +1088,13 @@ function App() {
               <button type="button" className={pestanaAdmin === 'orders' ? 'is-active' : ''} onClick={() => setPestanaAdmin('orders')}>Pedidos ({pedidosAdmin.length})</button>
             </div>
             {pestanaAdmin === 'dashboard' && (
-              <AdminDashboard
-                resumen={resumenAdmin}
-                onManageProducts={() => setPestanaAdmin('catalog')}
-                onManageOrders={() => setPestanaAdmin('orders')}
-              />
+              cargandoAdmin
+                ? <p className="loading-message" role="status"><span className="loading-spinner" aria-hidden="true" /> Cargando resumen y pedidos…</p>
+                : <AdminDashboard
+                    resumen={resumenAdmin}
+                    onManageProducts={() => setPestanaAdmin('catalog')}
+                    onManageOrders={() => setPestanaAdmin('orders')}
+                  />
             )}
             {pestanaAdmin === 'catalog' && (
               <>
@@ -1004,7 +1141,9 @@ function App() {
             {pestanaAdmin === 'orders' && (
               <section className="admin-orders" aria-label="Pedidos de clientes">
                 <h3>Pedidos registrados <span>{pedidosAdmin.length}</span></h3>
-                {pedidosAdmin.length === 0 ? (
+                {cargandoAdmin ? (
+                  <p className="loading-message" role="status"><span className="loading-spinner" aria-hidden="true" /> Actualizando pedidos…</p>
+                ) : pedidosAdmin.length === 0 ? (
                   <p className="empty-category">Todavía no hay pedidos registrados.</p>
                 ) : pedidosAdmin.map((pedido) => (
                   <article className="admin-order-card" key={pedido.id}>

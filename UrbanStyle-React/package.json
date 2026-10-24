@@ -11,6 +11,9 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "start": "node server/index.js",
+    "start:validation": "npm run build && node server/index.js",
+    "verify:seeds": "node scripts/verify-seeds.js",
+    "test:e2e": "node scripts/e2e-purchase.js",
     "test": "karma start karma.conf.cjs"
   },
   "dependencies": {

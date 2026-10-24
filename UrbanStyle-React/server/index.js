@@ -42,7 +42,7 @@ if (!adminPassword) {
   adminPassword = randomBytes(18).toString('base64url')
   persistEnvironmentValue('ADMIN_PASSWORD', adminPassword)
   process.env.ADMIN_PASSWORD = adminPassword
-  console.info(`Admin inicial (${adminEmail}) - guarda esta clave: ${adminPassword}`)
+  console.info(`Administrador inicializado (${adminEmail}); credenciales locales guardadas en .env.`)
 }
 
 ensureAdminCredentials(adminEmail, adminPassword)

@@ -1,21 +1,56 @@
 module.exports = function (config) {
   config.set({
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'webpack'],
 
     files: [
       'src/test/**/*.spec.jsx',
-      'src/test/**/*.test.jsx',
-      'src/test/**/*.test.js'
+      'src/test/**/*.spec.js'
     ],
 
     preprocessors: {
-      'src/test/**/*.spec.jsx': ['webpack', 'sourcemap'],
-      'src/test/**/*.test.jsx': ['webpack', 'sourcemap'],
-      'src/test/**/*.test.js': ['webpack', 'sourcemap']
+      'src/test/**/*.spec.jsx': ['webpack'],
+      'src/test/**/*.spec.js': ['webpack']
     },
 
-    browsers: ['Chrome'],
+    webpack: {
+      mode: 'development',
+      devtool: 'inline-source-map',
+      resolve: {
+        extensions: ['.js', '.jsx', '.json', '.wasm', '.html']
+      },
+      module: {
+        rules: [
+          {
+            test: /\.[jt]sx?$/,
+            exclude: /node_modules/,
+            resolve: { fullySpecified: false },
+            use: {
+              loader: 'babel-loader',
+              options: {
+                babelrc: false,
+                configFile: false,
+                presets: [
+                  require.resolve('@babel/preset-env'),
+                  [require.resolve('@babel/preset-react'), { runtime: 'automatic' }]
+                ]
+              }
+            }
+          },
+          {
+            test: /\.(png|jpe?g|gif|webp|avif|svg)$/i,
+            type: 'asset/inline'
+          },
+          {
+            test: /\.css$/i,
+            sideEffects: true,
+            type: 'asset/source'
+          }
+        ]
+      }
+    },
+    webpackMiddleware: { stats: 'errors-only' },
+    browsers: ['ChromeHeadless'],
     singleRun: true,
     reporters: ['progress']
-  });
-};
+  })
+}
