@@ -13,7 +13,7 @@ const PagoErrorPage = () => {
 
         <div className="d-flex justify-content-center gap-3 mt-4">
           <Link to="/checkout" className="btn btn-warning btn-lg">Volver a Realizar el Pago</Link>
-          <Link to="/carrito" className="btn btn-outline-secondary btn-lg">Revisar Carrito</Link>
+          <Link to="/cart" className="btn btn-outline-secondary btn-lg">Revisar Carrito</Link>
         </div>
       </div>
     </div>

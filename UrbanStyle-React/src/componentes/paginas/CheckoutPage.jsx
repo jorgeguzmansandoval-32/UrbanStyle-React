@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { calcularTotales, guardarCarrito, obtenerCarrito } from '../../data/carrito';
 
-const CheckoutPage = ({ carrito = [], total = 0, limpiarCarrito }) => {
+const CheckoutPage = () => {
   const navigate = useNavigate();
+  const [carrito] = useState(obtenerCarrito);
+  const { total } = calcularTotales(carrito);
   const [formData, setFormData] = useState({
     nombre: '',
     apellidos: '',
@@ -14,6 +17,12 @@ const CheckoutPage = ({ carrito = [], total = 0, limpiarCarrito }) => {
     indicaciones: ''
   });
 
+  useEffect(() => {
+    if (carrito.length === 0) {
+      navigate('/cart', { replace: true });
+    }
+  }, [carrito.length, navigate]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -22,9 +31,8 @@ const CheckoutPage = ({ carrito = [], total = 0, limpiarCarrito }) => {
     e.preventDefault();
     // Simulación del procesamiento del pago (80% éxito, 20% error para pruebas)
     const exito = Math.random() > 0.2;
-    if (limpiarCarrito) limpiarCarrito();
-
     if (exito) {
+      guardarCarrito([]);
       navigate('/pago-exitoso', { state: { cliente: formData, carrito, total } });
     } else {
       navigate('/pago-error', { state: { cliente: formData, carrito, total } });

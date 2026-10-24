@@ -20,6 +20,9 @@ import ContactoPage from './componentes/paginas/ContactoPage'
 import CuentaPage from './componentes/paginas/CuentaPage'
 import RegistrarUsuarioPage from './componentes/paginas/RegistrarUsuarioPage'
 import CarritoPage from './componentes/paginas/CarritoPage'
+import CheckoutPage from './componentes/paginas/CheckoutPage'
+import PagoExitosoPage from './componentes/paginas/PagoExitosoPage'
+import PagoErrorPage from './componentes/paginas/PagoErrorPage'
 import PaginaNoEncontrada from './componentes/paginas/PaginaNoEncontrada'
 
 import AdminProductos from './admin/AdminProductos'
@@ -73,6 +76,9 @@ function App() {
         <Route path="/account" element={<CuentaPage />} />
         <Route path="/registrar" element={<RegistrarUsuarioPage />} />
         <Route path="/cart" element={<CarritoPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/pago-exitoso" element={<PagoExitosoPage />} />
+        <Route path="/pago-error" element={<PagoErrorPage />} />
 
         <Route
           path="/admin/productos"

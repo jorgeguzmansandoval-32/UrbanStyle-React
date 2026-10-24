@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { agregarAlCarrito } from '../data/carrito'
 
 export default function Producto({ producto, numero }) {
@@ -107,6 +108,9 @@ export default function Producto({ producto, numero }) {
             <div className="urbanstyle-toast-content">
               <strong>Producto añadido a la bolsa</strong>
               <span>{notificacion.nombre}</span>
+              <Link to="/cart" className="urbanstyle-toast-link">
+                Ver bolsa <span aria-hidden="true">→</span>
+              </Link>
             </div>
           </div>
         </div>

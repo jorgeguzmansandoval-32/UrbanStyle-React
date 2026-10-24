@@ -8,7 +8,7 @@ export default function CuentaPage() {
   const [correo, setCorreo] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [errores, setErrores] = useState({})
-  const [mensaje, setMensaje] = useState('')
+  const [mensaje, setMensaje] = useState(location.state?.mensaje || '')
 
   function validarCorreo(valor) {
     if (!valor.trim()) {
