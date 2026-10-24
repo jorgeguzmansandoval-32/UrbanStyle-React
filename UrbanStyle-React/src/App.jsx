@@ -31,10 +31,11 @@ import PaginaNoEncontrada from './componentes/paginas/PaginaNoEncontrada'
 import AdminProductos from './admin/AdminProductos'
 import AdminUsuarios from './admin/AdminUsuarios'
 import AdminDashboard from './admin/adminsDashboard'
+import AdminPedidos from './admin/AdminPedidos'
 
 import { obtenerSesion } from './data/autenticacion'
 
-// Proteger las rutas administrativas
+// Proteger rutas administrativas
 function RutaAdmin({ children }) {
   const location = useLocation()
   const usuario = obtenerSesion()
@@ -52,7 +53,7 @@ function RutaAdmin({ children }) {
   return children
 }
 
-// Desplazamiento a secciones del inicio
+// Navegación hacia secciones de la página
 function ScrollToHash() {
   const { hash, pathname } = useLocation()
 
@@ -60,7 +61,9 @@ function ScrollToHash() {
     if (!hash) return
 
     const frameId = window.requestAnimationFrame(() => {
-      document.getElementById(hash.slice(1))?.scrollIntoView({
+      document.getElementById(
+        hash.slice(1)
+      )?.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
       })
@@ -76,9 +79,12 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToHash />
+
       <NavBar />
 
       <Routes>
+
+        {/* TIENDA */}
         <Route path="/" element={<InicioPage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/about" element={<NosotrosPage />} />
@@ -86,14 +92,17 @@ function App() {
         <Route path="/account" element={<CuentaPage />} />
         <Route path="/registrar" element={<RegistrarUsuarioPage />} />
 
+        {/* CATÁLOGO */}
         <Route path="/categorias" element={<CategoriasPage />} />
         <Route path="/ofertas" element={<OfertasPage />} />
 
+        {/* COMPRAS */}
         <Route path="/cart" element={<CarritoPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/pago-exitoso" element={<PagoExitosoPage />} />
         <Route path="/pago-error" element={<PagoErrorPage />} />
 
+        {/* ADMINISTRACIÓN */}
         <Route
           path="/admin"
           element={
@@ -121,7 +130,21 @@ function App() {
           }
         />
 
-        <Route path="*" element={<PaginaNoEncontrada />} />
+        <Route
+          path="/admin/orders"
+          element={
+            <RutaAdmin>
+              <AdminPedidos />
+            </RutaAdmin>
+          }
+        />
+
+        {/* RUTA NO ENCONTRADA */}
+        <Route
+          path="*"
+          element={<PaginaNoEncontrada />}
+        />
+
       </Routes>
 
       <Footer />
