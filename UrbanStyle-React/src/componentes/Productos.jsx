@@ -1,6 +1,6 @@
 
 import { useState } from 'react'
-import Producto from './Producto'
+import Producto from './Producto.jsx'
 
 import chaquetaFur from '../Imagen/catalogo-chaqueta-fur.jpg'
 import chaquetaRacing from '../Imagen/catalogo-chaqueta-racing.jpg'

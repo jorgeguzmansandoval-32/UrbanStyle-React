@@ -15,6 +15,7 @@ import CarritoPage from './componentes/paginas/CarritoPage'
 import PaginaNoEncontrada from './componentes/paginas/PaginaNoEncontrada'
 
 import AdminProductos from './admin/AdminProductos'
+import AdminDashboard from './admin/adminsDashboard';
 
 function App() {
   return (
@@ -32,7 +33,10 @@ function App() {
         <Route
           path="/admin/productos"
           element={<AdminProductos />}
-        />
+         />
+        <Route 
+        path="/admin" 
+        element={<AdminDashboard />} />
 
         <Route path="*" element={<PaginaNoEncontrada />} />
       </Routes>
