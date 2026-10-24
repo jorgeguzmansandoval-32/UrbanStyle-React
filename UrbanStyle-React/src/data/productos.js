@@ -7,6 +7,11 @@ import cargo from '../Imagen/catalogo-pantalon-cargo.jpg'
 
 // Clave utilizada para guardar los productos
 const PRODUCTS_KEY = 'urbanstyle_products'
+const DESCUENTOS_OFERTA = new Map([
+  ['Chaqueta Urban Fur', 15],
+  ['Chaqueta Racing Black', 10],
+  ['Jeans Ripped Black', 20]
+])
 
 // Productos originales de UrbanStyle
 export const productosIniciales = [
@@ -51,6 +56,24 @@ export const productosIniciales = [
     image: cargo
   }
 ]
+
+export function obtenerDescuento(producto) {
+  const descuentoGuardado = Number(producto.discountPercent)
+  if (Number.isFinite(descuentoGuardado) && descuentoGuardado > 0) {
+    return Math.min(descuentoGuardado, 70)
+  }
+
+  return DESCUENTOS_OFERTA.get(producto.name || producto.nombre) || 0
+}
+
+export function obtenerPrecioConDescuento(producto) {
+  const precio = Number(producto.price ?? producto.precio)
+  const descuento = obtenerDescuento(producto)
+
+  return descuento > 0
+    ? Math.round(precio * (1 - descuento / 100))
+    : precio
+}
 
 // READ: Obtener los productos
 export function obtenerProductos() {

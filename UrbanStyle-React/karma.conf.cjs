@@ -1,36 +1,20 @@
 module.exports = function (config) {
   config.set({
-    frameworks: ['jasmine', 'webpack'],
+    frameworks: ['jasmine'],
+
     files: [
-      { pattern: 'src/test/**/*.spec.jsx', watched: false }
+      'src/test/**/*.spec.jsx',
+      'src/test/**/*.test.jsx',
+      'src/test/**/*.test.js'
     ],
+
     preprocessors: {
-      'src/test/**/*.spec.jsx': ['webpack']
+      'src/test/**/*.spec.jsx': ['webpack', 'sourcemap'],
+      'src/test/**/*.test.jsx': ['webpack', 'sourcemap'],
+      'src/test/**/*.test.js': ['webpack', 'sourcemap']
     },
-    webpack: {
-      mode: 'development',
-      resolve: {
-        extensions: ['.js', '.jsx', '.json']
-      },
-      module: {
-        rules: [
-          {
-            test: /\.jsx?$/,
-            exclude: /node_modules/,
-            use: {
-              loader: 'babel-loader',
-              options: {
-                presets: [
-                  '@babel/preset-env',
-                  ['@babel/preset-react', { runtime: 'automatic' }]
-                ]
-              }
-            }
-          }
-        ]
-      }
-    },
-    browsers: ['ChromeHeadless'],
+
+    browsers: ['Chrome'],
     singleRun: true,
     reporters: ['progress']
   });

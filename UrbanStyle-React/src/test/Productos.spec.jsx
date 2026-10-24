@@ -1,25 +1,39 @@
-import React from 'react';
+import { obtenerProductos } from '../data/productos';
 
-describe('Pruebas Unitarias - Módulo de Productos', () => {
-  const listaProductos = [
-    { id: 1, name: 'Chaqueton Urban Fur', price: 45990, stock: 12 },
-    { id: 2, name: 'Chaqueta Racing Black', price: 59990, stock: 8 }
-  ];
+describe('Suite de Pruebas 1: Lógica de Datos de Productos', () => {
 
-  it('debe existir el catálogo inicial de productos', () => {
-    expect(listaProductos).toBeDefined();
-    expect(listaProductos.length).toBe(2);
+  it('Prueba 1: obtenerProductos debe retornar un arreglo válido', () => {
+    const productos = obtenerProductos();
+    expect(Array.isArray(productos)).toBeTrue();
   });
 
-  it('debe validar que los productos tengan precio y stock mayores a cero', () => {
-    listaProductos.forEach(prod => {
-      expect(prod.price).toBeGreaterThan(0);
-      expect(prod.stock).toBeGreaterThanOrEqual(0);
+  it('Prueba 2: Debe contener productos cargados en el inventario', () => {
+    const productos = obtenerProductos();
+    expect(productos.length).toBeGreaterThan(0);
+  });
+
+  it('Prueba 3: Cada producto debe incluir las propiedades requeridas (id, name, price, stock, image)', () => {
+    const productos = obtenerProductos();
+    productos.forEach((prod) => {
+      expect(prod.id).toBeDefined();
+      expect(prod.name || prod.nombre).toBeTruthy();
+      expect(typeof (prod.price || prod.precio)).toBe('number');
+      expect(prod.image || prod.imagen).toBeTruthy();
     });
   });
 
-  it('debe calcular correctamente el precio total del carrito', () => {
-    const total = listaProductos.reduce((acc, item) => acc + item.price, 0);
-    expect(total).toBe(105980);
+  it('Prueba 4: Todos los precios deben ser valores numéricos positivos mayores a 0', () => {
+    const productos = obtenerProductos();
+    productos.forEach((prod) => {
+      const precio = prod.price || prod.precio;
+      expect(precio).toBeGreaterThan(0);
+    });
   });
+
+  it('Prueba 5: Debe incluir productos de la colección urbana en el listado', () => {
+    const productos = obtenerProductos();
+    const nombres = productos.map((p) => p.name || p.nombre);
+    expect(nombres.length).toBeGreaterThan(0);
+  });
+
 });

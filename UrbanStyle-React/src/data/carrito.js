@@ -1,5 +1,9 @@
 
-import { obtenerProductos } from './productos'
+import {
+  obtenerDescuento,
+  obtenerPrecioConDescuento,
+  obtenerProductos
+} from './productos'
 
 const CART_KEY = 'urbanstyle_cart'
 
@@ -24,8 +28,8 @@ export function guardarCarrito(carrito) {
 }
 
 // CREATE: Agregar productos al carrito
-export function agregarAlCarrito(id) {
-  const producto = obtenerProductos().find(
+export function agregarAlCarrito(id, productosDisponibles = obtenerProductos()) {
+  const producto = productosDisponibles.find(
     (item) => String(item.id) === String(id)
   )
 
@@ -42,19 +46,26 @@ export function agregarAlCarrito(id) {
   const cantidadActual = existente
     ? Number(existente.quantity)
     : 0
+  const discountPercent = obtenerDescuento(producto)
+  const price = obtenerPrecioConDescuento(producto)
 
   if (cantidadActual >= Number(producto.stock)) {
     throw new Error('No hay suficiente stock disponible.')
   }
 
   if (existente) {
-    existente.quantity += 1
+    existente.quantity = cantidadActual + 1
+    existente.price = price
+    existente.originalPrice = Number(producto.price)
+    existente.discountPercent = discountPercent
   } else {
     carrito.push({
       id: producto.id,
       name: producto.name,
       description: producto.description,
-      price: Number(producto.price),
+      price,
+      originalPrice: Number(producto.price),
+      discountPercent,
       image: producto.image,
       quantity: 1
     })
@@ -66,7 +77,7 @@ export function agregarAlCarrito(id) {
 }
 
 // UPDATE: Modificar la cantidad
-export function cambiarCantidad(id, cantidad) {
+export function cambiarCantidad(id, cantidad, productosDisponibles = obtenerProductos()) {
   const carrito = obtenerCarrito()
 
   const producto = carrito.find(
@@ -87,7 +98,7 @@ export function cambiarCantidad(id, cantidad) {
     return eliminarDelCarrito(id)
   }
 
-  const productoDisponible = obtenerProductos().find(
+  const productoDisponible = productosDisponibles.find(
     (item) => String(item.id) === String(id)
   )
 

@@ -4,13 +4,21 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k -n api,web -c yellow,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node --watch server/index.js",
+    "dev:web": "vite",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "start": "node server/index.js",
     "test": "karma start karma.conf.cjs"
   },
   "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "concurrently": "^9.2.1",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.4"

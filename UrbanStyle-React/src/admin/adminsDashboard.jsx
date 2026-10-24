@@ -1,82 +1,64 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { obtenerProductos } from '../data/productos';
+import React from 'react'
 
-export default function AdminDashboard() {
-  const productos = obtenerProductos() || [];
+function formatoPrecio(precio) {
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0
+  }).format(precio)
+}
 
+export default function AdminDashboard({ resumen, onManageProducts, onManageOrders }) {
   return (
-    <div className="container my-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Dashboard General</h2>
-        <span className="badge bg-primary fs-6">Panel de Administración</span>
+    <section className="dashboard-overview" aria-labelledby="dashboard-title">
+      <div className="dashboard-heading">
+        <div>
+          <span className="eyebrow">RESUMEN DE LA TIENDA</span>
+          <h3 id="dashboard-title">Dashboard</h3>
+        </div>
+        <span className="dashboard-live"><span /> Datos del catálogo</span>
       </div>
 
-      {/* Tarjetas de métricas superiores (Figura 9 del encargo) */}
-      <div className="row g-3 mb-4">
-        <div className="col-md-4">
-          <div className="card text-white bg-primary p-3 shadow-sm">
-            <div className="card-body">
-              <h5 className="card-title">Compras</h5>
-              <h2 className="display-6">1,234</h2>
-              <p className="card-text small mb-0">Probabilidad de aumento: 20%</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card text-white bg-success p-3 shadow-sm">
-            <div className="card-body">
-              <h5 className="card-title">Productos</h5>
-              <h2 className="display-6">{productos.length}</h2>
-              <p className="card-text small mb-0">Inventario activo actualmente</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card text-white bg-warning p-3 shadow-sm text-dark">
-            <div className="card-body">
-              <h5 className="card-title">Usuarios</h5>
-              <h2 className="display-6">890</h2>
-              <p className="card-text small mb-0">Usuarios registrados</p>
-            </div>
-          </div>
-        </div>
+      <div className="dashboard-metrics">
+        <article className="dashboard-metric">
+          <span>Prendas activas</span>
+          <strong>{resumen.products}</strong>
+          <small>Productos disponibles en el catálogo</small>
+        </article>
+        <article className="dashboard-metric">
+          <span>Unidades en stock</span>
+          <strong>{resumen.stockUnits}</strong>
+          <small>Unidades sumadas del inventario</small>
+        </article>
+        <article className={`dashboard-metric ${resumen.lowStock ? 'is-warning' : ''}`}>
+          <span>Stock bajo</span>
+          <strong>{resumen.lowStock}</strong>
+          <small>Productos con menos de 5 unidades</small>
+        </article>
+        <article className="dashboard-metric">
+          <span>Valor del inventario</span>
+          <strong>{formatoPrecio(resumen.inventoryValue)}</strong>
+          <small>Precio de lista × stock actual</small>
+        </article>
+        <article className="dashboard-metric">
+          <span>Pedidos por pagar</span>
+          <strong>{resumen.pendingOrders}</strong>
+          <small>Pedidos de demostración sin pago</small>
+        </article>
+        <article className="dashboard-metric">
+          <span>Cuentas de clientes</span>
+          <strong>{resumen.customers}</strong>
+          <small>Perfiles registrados en SQLite</small>
+        </article>
       </div>
 
-      {/* Accesos a módulos del panel */}
-      <div className="row g-3">
-        <div className="col-md-4">
-          <div className="card text-center p-3 shadow-sm h-100">
-            <div className="card-body d-flex flex-column">
-              <h5>📦 Productos</h5>
-              <p className="text-muted small">Administración de inventario, detalle y productos disponibles.</p>
-              <Link to="/admin/productos" className="btn btn-outline-primary mt-auto">Ir a Productos</Link>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card text-center p-3 shadow-sm h-100">
-            <div className="card-body d-flex flex-column">
-              <h5>🧾 Órdenes</h5>
-              <p className="text-muted small">Gestión y seguimiento de todas las órdenes de compra.</p>
-              <button className="btn btn-outline-secondary mt-auto" disabled>Ver Órdenes</button>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card text-center p-3 shadow-sm h-100">
-            <div className="card-body d-flex flex-column">
-              <h5>👥 Usuarios</h5>
-              <p className="text-muted small">Gestión de cuentas de usuario y roles en el sistema.</p>
-              <button className="btn btn-outline-secondary mt-auto" disabled>Ver Usuarios</button>
-            </div>
-          </div>
+      <div className="dashboard-footer">
+        <p>Los pagos no se procesan; estos pedidos aún requieren pago para iniciar el envío.</p>
+        <div>
+          <button type="button" onClick={onManageOrders}>Ver pedidos <span aria-hidden="true">→</span></button>
+          <button type="button" onClick={onManageProducts}>Gestionar catálogo <span aria-hidden="true">→</span></button>
         </div>
       </div>
-    </div>
-  );
+    </section>
+  )
 }

@@ -1,16 +1,42 @@
-# React + Vite
+# UrbanStyle
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Tienda de demostración construida con React, Vite, Express y SQLite.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20 o superior
+- npm
 
-## React Compiler
+## Desarrollo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Desde esta carpeta (`UrbanStyle-React`):
 
-## Expanding the Oxlint configuration
+```bash
+npm install
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+El comando inicia la API Express en `http://localhost:3001` y Vite en `http://localhost:5173` (o el siguiente puerto disponible). La terminal muestra la clave del administrador cuando se crea por primera vez.
+
+La configuración local se guarda en `.env` y queda excluida de Git. También se puede copiar `.env.example` y definir `ADMIN_EMAIL`, `ADMIN_PASSWORD` y `PORT` antes de iniciar. Si no existe una clave, el servidor genera una clave aleatoria, la guarda en `.env` y la muestra una sola vez en la terminal.
+
+## Producción local
+
+```bash
+npm run build
+npm start
+```
+
+Express sirve la API y la aplicación compilada en `http://localhost:3001`.
+
+## Persistencia y administración
+
+- Catálogo, inventario, cuentas de cliente, sesiones y pedidos se guardan en `server/data/urbanstyle.db`.
+- Las imágenes cargadas por el administrador se guardan en `server/uploads/`.
+- Los productos de inicio se insertan en SQLite al arrancar por primera vez. Las prendas Streetwear de demostración también se agregan una sola vez a bases de datos existentes; sus precios y stock pueden editarse desde administración.
+- El catálogo muestra las categorías **Polerones** y **Poleras**; el panel de administración permite seguir agregando prendas e imágenes autorizadas.
+- El administrador inicia sesión desde la opción **Admin** del formulario de acceso. El servidor valida las credenciales y restringe las rutas de administración mediante una cookie `HttpOnly`.
+- El dashboard muestra métricas reales del catálogo y los pedidos registrados. Los pedidos de demostración quedan en estado **Pendiente de pago**.
+- El checkout guarda los datos de entrega y el resumen del pedido, pero no cobra ni inicia un envío. Para un despliegue público se debe integrar una pasarela de pago y revisar las medidas de seguridad y privacidad correspondientes.
+
+La base de datos y los archivos subidos son datos locales ignorados por Git; realiza una copia de seguridad de `server/data/` y `server/uploads/` si necesitas conservarlos al mover el proyecto.
