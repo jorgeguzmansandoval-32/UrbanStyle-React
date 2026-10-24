@@ -1,58 +1,11 @@
 
 import { useState } from 'react'
 import Producto from './Producto.jsx'
-
-import chaquetaFur from '../Imagen/catalogo-chaqueta-fur.jpg'
-import chaquetaRacing from '../Imagen/catalogo-chaqueta-racing.jpg'
-import cortaviento from '../Imagen/catalogo-cortaviento-tech.jpg'
-import jeans from '../Imagen/catalogo-jeans-ripped.jpg'
-import cargo from '../Imagen/catalogo-pantalon-cargo.jpg'
-
-const productos = [
-  {
-    id: 1,
-    name: 'Chaqueta Urban Fur',
-    description: 'Chaqueta negra de corte urbano con cuello de textura y cierre frontal.',
-    price: 45990,
-    stock: 12,
-    image: chaquetaFur
-  },
-  {
-    id: 2,
-    name: 'Chaqueta Racing Black',
-    description: 'Chaqueta bomber negra con gráfica deportiva y detalles reflectantes.',
-    price: 59990,
-    stock: 8,
-    image: chaquetaRacing
-  },
-  {
-    id: 3,
-    name: 'Cortaviento Tech Grey',
-    description: 'Cortaviento ligero gris con paneles contrastantes y silueta técnica.',
-    price: 49990,
-    stock: 15,
-    image: cortaviento
-  },
-  {
-    id: 4,
-    name: 'Jeans Ripped Black',
-    description: 'Jeans negros de corte relajado con detalles desgastados y cadenas.',
-    price: 39990,
-    stock: 10,
-    image: jeans
-  },
-  {
-    id: 5,
-    name: 'Cargo Utility Grey',
-    description: 'Pantalón cargo gris de inspiración utilitaria para un fit urbano.',
-    price: 44990,
-    stock: 6,
-    image: cargo
-  }
-]
+import { obtenerProductos } from '../data/productos'
 
 export default function Productos() {
 
+  const [productos] = useState(obtenerProductos)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOrder, setSortOrder] = useState('default')
 

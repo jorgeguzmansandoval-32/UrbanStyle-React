@@ -7,7 +7,7 @@ const PagoExitosoPage = () => {
 
   return (
     <div className="container my-5 text-center">
-      <div className="card shadow-sm p-4 mx-auto" style={{ maxWidth: '700px' }}>
+      <div className="card shadow-sm p-4 mx-auto payment-result-card payment-result-card-success">
         <div className="text-success mb-3">
           <i className="bi bi-check-circle-fill display-1"></i>
           <h2 className="mt-2">¡Se ha realizado la compra!</h2>

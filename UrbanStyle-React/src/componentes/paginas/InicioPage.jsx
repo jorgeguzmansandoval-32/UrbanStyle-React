@@ -43,59 +43,28 @@ export default function InicioPage() {
 
       <section
         id="categorias"
-        className="explore-section"
-        style={{ padding: '64px 24px' }}
+        className="explore-section categories-section"
       >
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <p
-            style={{
-              color: '#7d7d77',
-              textTransform: 'uppercase',
-              letterSpacing: '0.18em',
-              fontSize: '0.8rem',
-              fontWeight: 700
-            }}
-          >
+        <div className="categories-inner">
+          <p className="categories-kicker">
             Categorías
           </p>
 
-          <h2
-            style={{
-              fontSize: 'clamp(2rem, 3vw, 3.2rem)',
-              margin: '12px 0 28px'
-            }}
-          >
+          <h2 className="categories-title">
             Diseñado para moverte con estilo
           </h2>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns:
-                'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: '22px'
-            }}
-          >
+          <div className="categories-grid">
             {categories.map((category) => (
               <article
                 key={category.name}
-                style={{
-                  background: '#fff',
-                  borderRadius: '18px',
-                  padding: '24px',
-                  border: '1px solid #eaeae5'
-                }}
+                className="category-card"
               >
-                <h3
-                  style={{
-                    margin: '0 0 10px',
-                    fontSize: '1.4rem'
-                  }}
-                >
+                <h3 className="category-card-title">
                   {category.name}
                 </h3>
 
-                <p style={{ color: '#666', margin: 0 }}>
+                <p className="category-card-description">
                   {category.text}
                 </p>
               </article>

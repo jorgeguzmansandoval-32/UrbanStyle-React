@@ -70,9 +70,9 @@ export default function AdminDashboard() {
         <div className="col-md-4">
           <div className="card text-center p-3 shadow-sm h-100">
             <div className="card-body d-flex flex-column">
-              <h5>👥 Usuarios</h5>
-              <p className="text-muted small">Gestión de cuentas de usuario y roles en el sistema.</p>
-              <button className="btn btn-outline-secondary mt-auto" disabled>Ver Usuarios</button>
+              <h5>👥 Usuarios administradores</h5>
+              <p className="text-muted small">Crea y administra los accesos al panel.</p>
+              <Link to="/admin/usuarios" className="btn btn-outline-primary mt-auto">Gestionar usuarios</Link>
             </div>
           </div>
         </div>

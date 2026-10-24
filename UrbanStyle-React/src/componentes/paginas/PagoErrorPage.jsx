@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const PagoErrorPage = () => {
   return (
     <div className="container my-5 text-center">
-      <div className="card shadow-sm p-4 mx-auto" style={{ maxWidth: '600px' }}>
+      <div className="card shadow-sm p-4 mx-auto payment-result-card payment-result-card-error">
         <div className="text-danger mb-3">
           <i className="bi bi-x-circle-fill display-1"></i>
           <h2 className="mt-2">No se pudo realizar el pago</h2>
