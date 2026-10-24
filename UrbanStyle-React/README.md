@@ -69,6 +69,7 @@ La prueba crea un correo de cliente único, cierra y vuelve a iniciar sesión, b
 - Las imágenes iniciales se sirven desde `src/Imagen` a través de `/catalogo-images`; el catálogo y las fotos deben estar presentes en esa carpeta.
 - El catálogo muestra las categorías **Polerones** y **Poleras**; el panel de administración permite seguir agregando prendas e imágenes autorizadas.
 - El administrador inicia sesión desde la opción **Admin** del formulario de acceso. El servidor valida las credenciales y restringe las rutas de administración mediante una cookie `HttpOnly`.
+- El checkout requiere una sesión de cliente válida en el navegador y también en el servidor. Cada cliente puede actualizar sus datos y consultar únicamente sus propios pedidos desde **Mi cuenta**.
 - El dashboard muestra métricas reales del catálogo y los pedidos registrados. Los pedidos de demostración quedan en estado **Pendiente de pago**.
 - El checkout guarda los datos de entrega y el resumen del pedido, pero no cobra ni inicia un envío. Para un despliegue público se debe integrar una pasarela de pago y revisar las medidas de seguridad y privacidad correspondientes.
 

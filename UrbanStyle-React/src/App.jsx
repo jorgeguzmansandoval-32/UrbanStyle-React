@@ -19,6 +19,7 @@ import {
 } from './data/validaciones'
 import {
   actualizarProductoApi,
+  actualizarPerfilCliente,
   cerrarSesionCliente,
   cerrarSesionAdmin,
   crearPedido,
@@ -28,6 +29,7 @@ import {
   iniciarSesionAdmin,
   obtenerDashboardAdmin,
   obtenerPedidosAdmin,
+  obtenerPedidosCliente,
   obtenerProductosApi,
   obtenerSesionCliente,
   obtenerSesionAdmin,
@@ -168,6 +170,11 @@ function App() {
   const [enviandoRegistro, setEnviandoRegistro] = useState(false)
   const [enviandoPedido, setEnviandoPedido] = useState(false)
   const [erroresValidacion, setErroresValidacion] = useState({})
+  const [checkoutRequiereLogin, setCheckoutRequiereLogin] = useState(false)
+  const [pestanaCuenta, setPestanaCuenta] = useState('profile')
+  const [pedidosCliente, setPedidosCliente] = useState([])
+  const [cargandoCuenta, setCargandoCuenta] = useState(false)
+  const [guardandoPerfil, setGuardandoPerfil] = useState(false)
   const [formularioLogin, setFormularioLogin] = useState({ email: '', password: '' })
   const [modoAcceso, setModoAcceso] = useState('customer')
   const [formularioRegistro, setFormularioRegistro] = useState({
@@ -193,16 +200,26 @@ function App() {
 
   useEffect(() => {
     let cancelled = false
-    Promise.all([obtenerProductosApi(), obtenerSesionAdmin(), obtenerSesionCliente()])
-      .then(([productosCargados, adminActual, clienteActual]) => {
+    Promise.allSettled([obtenerProductosApi(), obtenerSesionAdmin(), obtenerSesionCliente()])
+      .then(([productosResult, adminResult, clienteResult]) => {
         if (cancelled) return
-        setProductos(productosCargados)
+        if (productosResult.status === 'rejected') {
+          setError(`No se pudo cargar el catálogo: ${productosResult.reason.message}`)
+          return
+        }
+
+        setProductos(productosResult.value)
+        const adminActual = adminResult.status === 'fulfilled' ? adminResult.value : null
+        const clienteActual = clienteResult.status === 'fulfilled' ? clienteResult.value : null
         const usuarioActual = adminActual || clienteActual
         setUsuario(usuarioActual)
         if (clienteActual) setDatosEnvio({ ...ENVIO_INICIAL, ...clienteActual })
-      })
-      .catch((loadError) => {
-        if (!cancelled) setError(`No se pudo conectar con la tienda: ${loadError.message}`)
+
+        const sessionError = [adminResult, clienteResult]
+          .find((result) => result.status === 'rejected')
+        if (sessionError) {
+          setError(`No se pudo verificar la sesión: ${sessionError.reason.message}`)
+        }
       })
       .finally(() => {
         if (!cancelled) setCargandoProductos(false)
@@ -330,6 +347,8 @@ function App() {
       if (result.user.role === 'customer') {
         setDatosEnvio({ ...ENVIO_INICIAL, ...result.user })
       }
+      setPanelActivo(result.user.role === 'customer' && checkoutRequiereLogin ? 'checkout' : '')
+      setCheckoutRequiereLogin(false)
       setMensaje(result.user.role === 'admin'
         ? 'Sesión de administrador iniciada.'
         : 'Sesión de cliente iniciada.')
@@ -355,7 +374,8 @@ function App() {
       setUsuario(result.user)
       setDatosEnvio({ ...ENVIO_INICIAL, ...result.user })
       setFormularioRegistro({ ...ENVIO_INICIAL, password: '' })
-      setPanelActivo('')
+      setPanelActivo(checkoutRequiereLogin ? 'checkout' : '')
+      setCheckoutRequiereLogin(false)
       setMensaje('Cuenta creada. Tus datos de envío quedaron guardados.')
     } catch (registrationError) {
       setError(registrationError.message)
@@ -445,7 +465,69 @@ function App() {
     setError('')
     setPedidoCreado(null)
     setErroresValidacion({})
+    if (usuario?.role !== 'customer') {
+      setCheckoutRequiereLogin(true)
+      setModoAcceso('customer')
+      setPanelActivo('login')
+      setError(usuario?.role === 'admin'
+        ? 'El checkout está disponible para cuentas de cliente. Inicia sesión como cliente.'
+        : 'Inicia sesión o crea una cuenta de cliente para continuar con tu compra.')
+      return
+    }
     setPanelActivo('checkout')
+  }
+
+  async function abrirCuentaCliente() {
+    if (usuario?.role !== 'customer') return
+    setError('')
+    setMensaje('')
+    setPestanaCuenta('profile')
+    setCargandoCuenta(true)
+    setPanelActivo('account')
+    try {
+      const [profile, orders] = await Promise.all([
+        obtenerSesionCliente(),
+        obtenerPedidosCliente()
+      ])
+      if (!profile) throw new Error('Tu sesión de cliente expiró. Inicia sesión nuevamente.')
+      setUsuario(profile)
+      setDatosEnvio((actual) => ({ ...actual, ...profile }))
+      setPedidosCliente(orders)
+    } catch (accountError) {
+      setError(`No se pudo cargar tu cuenta: ${accountError.message}`)
+    } finally {
+      setCargandoCuenta(false)
+    }
+  }
+
+  async function guardarPerfilCliente(event) {
+    event.preventDefault()
+    setError('')
+    setMensaje('')
+    const profile = {
+      name: datosEnvio.name,
+      phone: datosEnvio.phone,
+      address: datosEnvio.address,
+      address2: datosEnvio.address2,
+      city: datosEnvio.city,
+      region: datosEnvio.region,
+      email: usuario?.email
+    }
+    const errores = validarDatosEnvio({ ...profile, notes: '' })
+    setErroresValidacion(errores)
+    if (Object.keys(errores).length) return
+
+    setGuardandoPerfil(true)
+    try {
+      const result = await actualizarPerfilCliente(profile)
+      setUsuario(result.user)
+      setDatosEnvio((actual) => ({ ...actual, ...result.user }))
+      setMensaje('Tus datos se actualizaron correctamente.')
+    } catch (profileError) {
+      setError(`No se pudo actualizar el perfil: ${profileError.message}`)
+    } finally {
+      setGuardandoPerfil(false)
+    }
   }
 
   async function manejarConfirmarPedido(event) {
@@ -526,6 +608,9 @@ function App() {
           {usuario ? (
             <>
               <span className="store-user">{usuario.email}</span>
+              {usuario.role === 'customer' && (
+                <button className="store-icon-button" type="button" onClick={abrirCuentaCliente}>Mi cuenta</button>
+              )}
               <button className="store-icon-button" type="button" onClick={cerrarSesion}>Salir</button>
             </>
           ) : (
@@ -954,6 +1039,89 @@ function App() {
                 Añadir a la bolsa <span>→</span>
               </button>
             </div>
+          </section>
+        </div>
+      )}
+
+      {panelActivo === 'account' && usuario?.role === 'customer' && (
+        <div className="store-overlay" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setPanelActivo('')
+        }}>
+          <section className="store-dialog account-dialog" role="dialog" aria-modal="true" aria-labelledby="account-title">
+            <div className="drawer-heading">
+              <div><span className="eyebrow">TU ESPACIO URBANSTYLE</span><h2 id="account-title">Mi cuenta</h2></div>
+              <button className="dialog-close" type="button" onClick={() => setPanelActivo('')} aria-label="Cerrar mi cuenta">×</button>
+            </div>
+            {mensaje && <p className="store-success" role="status">{mensaje}</p>}
+            {error && <p className="store-error" role="alert">{error}</p>}
+            <div className="account-tabs" role="tablist" aria-label="Secciones de mi cuenta">
+              <button type="button" role="tab" aria-selected={pestanaCuenta === 'profile'} className={pestanaCuenta === 'profile' ? 'is-active' : ''} onClick={() => {
+                setPestanaCuenta('profile')
+                setError('')
+                setErroresValidacion({})
+              }}>Mis datos</button>
+              <button type="button" role="tab" aria-selected={pestanaCuenta === 'orders'} className={pestanaCuenta === 'orders' ? 'is-active' : ''} onClick={() => {
+                setPestanaCuenta('orders')
+                setError('')
+              }}>Mis pedidos ({pedidosCliente.length})</button>
+            </div>
+            {cargandoCuenta ? (
+              <p className="loading-message" role="status"><span className="loading-spinner" aria-hidden="true" /> Cargando tu cuenta…</p>
+            ) : pestanaCuenta === 'profile' ? (
+              <form className="store-form account-profile-form" onSubmit={guardarPerfilCliente} noValidate>
+                <ResumenErrores errores={erroresValidacion} />
+                <label htmlFor="account-email">Correo electrónico</label>
+                <input id="account-email" type="email" value={usuario.email} readOnly />
+                <label htmlFor="account-name">Nombre completo</label>
+                <input id="account-name" autoComplete="name" maxLength={100} value={datosEnvio.name} onChange={(event) => actualizarCampo(setDatosEnvio, 'name', event.target.value)} aria-invalid={Boolean(erroresValidacion.name)} aria-describedby={erroresValidacion.name ? 'error-name' : undefined} required />
+                <ErrorCampo campo="name" errores={erroresValidacion} />
+                <label htmlFor="account-phone">Teléfono</label>
+                <input id="account-phone" type="tel" autoComplete="tel" maxLength={30} value={datosEnvio.phone} onChange={(event) => actualizarCampo(setDatosEnvio, 'phone', event.target.value)} aria-invalid={Boolean(erroresValidacion.phone)} aria-describedby={erroresValidacion.phone ? 'error-phone' : undefined} required />
+                <ErrorCampo campo="phone" errores={erroresValidacion} />
+                <label htmlFor="account-address">Dirección</label>
+                <input id="account-address" autoComplete="street-address" maxLength={180} value={datosEnvio.address} onChange={(event) => actualizarCampo(setDatosEnvio, 'address', event.target.value)} aria-invalid={Boolean(erroresValidacion.address)} aria-describedby={erroresValidacion.address ? 'error-address' : undefined} required />
+                <ErrorCampo campo="address" errores={erroresValidacion} />
+                <label htmlFor="account-address2">Departamento, casa o referencia (opcional)</label>
+                <input id="account-address2" maxLength={180} value={datosEnvio.address2} onChange={(event) => actualizarCampo(setDatosEnvio, 'address2', event.target.value)} aria-invalid={Boolean(erroresValidacion.address2)} aria-describedby={erroresValidacion.address2 ? 'error-address2' : undefined} />
+                <ErrorCampo campo="address2" errores={erroresValidacion} />
+                <div className="shipping-form-grid">
+                  <div>
+                    <label htmlFor="account-city">Comuna</label>
+                    <input id="account-city" autoComplete="address-level2" maxLength={100} value={datosEnvio.city} onChange={(event) => actualizarCampo(setDatosEnvio, 'city', event.target.value)} aria-invalid={Boolean(erroresValidacion.city)} aria-describedby={erroresValidacion.city ? 'error-city' : undefined} required />
+                    <ErrorCampo campo="city" errores={erroresValidacion} />
+                  </div>
+                  <div>
+                    <label htmlFor="account-region">Región</label>
+                    <input id="account-region" autoComplete="address-level1" maxLength={100} value={datosEnvio.region} onChange={(event) => actualizarCampo(setDatosEnvio, 'region', event.target.value)} aria-invalid={Boolean(erroresValidacion.region)} aria-describedby={erroresValidacion.region ? 'error-region' : undefined} required />
+                    <ErrorCampo campo="region" errores={erroresValidacion} />
+                  </div>
+                </div>
+                <button type="submit" className="form-submit" disabled={guardandoPerfil}>
+                  {guardandoPerfil ? 'Guardando datos…' : 'Guardar mis datos'}
+                  <span>{guardandoPerfil ? <span className="loading-spinner" aria-hidden="true" /> : '→'}</span>
+                </button>
+              </form>
+            ) : (
+              <section className="customer-orders" role="tabpanel" aria-label="Historial de pedidos">
+                {pedidosCliente.length === 0 ? (
+                  <p className="empty-category">Todavía no tienes compras registradas.</p>
+                ) : pedidosCliente.map((pedido) => (
+                  <article className="admin-order-card customer-order-card" key={pedido.id}>
+                    <div className="admin-order-heading">
+                      <strong>Pedido #{pedido.id}</strong>
+                      <span className="order-status">{pedido.status === 'pending_payment' ? 'Pendiente de pago' : pedido.status}</span>
+                    </div>
+                    <p>{new Date(pedido.createdAt).toLocaleDateString('es-CL')} · Envío a {pedido.shippingCity}, {pedido.shippingRegion}</p>
+                    <ul>
+                      {pedido.items.map((item) => (
+                        <li key={`${pedido.id}-${item.id}`}>{item.quantity} × {item.name} — {formatearPrecio(item.lineTotal)}</li>
+                      ))}
+                    </ul>
+                    <div className="admin-order-total">Total: {formatearPrecio(pedido.total)}</div>
+                  </article>
+                ))}
+              </section>
+            )}
           </section>
         </div>
       )}

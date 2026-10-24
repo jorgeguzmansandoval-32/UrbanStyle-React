@@ -3,7 +3,9 @@ async function parseResponse(response) {
 
   const payload = await response.json().catch(() => ({}))
   if (!response.ok) {
-    throw new Error(payload.error || `Error del servidor (${response.status}).`)
+    const error = new Error(payload.error || `Error del servidor (${response.status}).`)
+    error.status = response.status
+    throw error
   }
   return payload
 }
@@ -30,7 +32,8 @@ export async function obtenerSesionAdmin() {
     const result = await request('/api/auth/me')
     return result.user
   } catch (error) {
-    if (error.message === 'Debes iniciar sesión como administrador.' ||
+    if (error.status === 401 ||
+        error.message === 'Debes iniciar sesión como administrador.' ||
         error.message === 'La sesión de administrador expiró. Inicia sesión nuevamente.') {
       return null
     }
@@ -43,7 +46,9 @@ export async function obtenerSesionCliente() {
     const result = await request('/api/customers/me')
     return result.user
   } catch (error) {
-    if (error.message === 'No hay una sesión de cliente activa.') return null
+    if (error.status === 401 ||
+        error.message === 'No hay una sesión de cliente activa.' ||
+        error.message === 'Debes iniciar sesión como cliente para continuar.') return null
     throw error
   }
 }
@@ -70,6 +75,18 @@ export function registrarCliente(customer) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(customer)
   })
+}
+
+export function actualizarPerfilCliente(profile) {
+  return request('/api/customers/me', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(profile)
+  })
+}
+
+export function obtenerPedidosCliente() {
+  return request('/api/customers/orders')
 }
 
 export function cerrarSesionAdmin() {

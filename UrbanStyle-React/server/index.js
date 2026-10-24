@@ -148,6 +148,20 @@ function requireAdmin(request, response, next) {
   next()
 }
 
+function requireCustomer(request, response, next) {
+  const token = getCookie(request, 'urbanstyle_customer')
+  const customer = token.length === 64
+    ? findCustomerSession.get(hashToken(token), Date.now())
+    : null
+  if (!customer) {
+    response.status(401).json({ error: 'Debes iniciar sesión como cliente para continuar.' })
+    return
+  }
+
+  request.customer = customer
+  next()
+}
+
 function validarProducto(body) {
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const description = typeof body.description === 'string' ? body.description.trim() : ''
@@ -315,16 +329,49 @@ app.post('/api/customers/login', (request, response) => {
   response.json({ user: { ...publicCustomer(customer), role: 'customer' } })
 })
 
-app.get('/api/customers/me', (request, response) => {
-  const token = getCookie(request, 'urbanstyle_customer')
-  const customer = token.length === 64
-    ? findCustomerSession.get(hashToken(token), Date.now())
-    : null
-  if (!customer) {
-    response.status(401).json({ error: 'No hay una sesión de cliente activa.' })
+app.get('/api/customers/me', requireCustomer, (request, response) => {
+  response.json({ user: { ...publicCustomer(request.customer), role: 'customer' } })
+})
+
+app.put('/api/customers/me', requireCustomer, (request, response) => {
+  const name = typeof request.body?.name === 'string' ? request.body.name.trim() : ''
+  const phone = typeof request.body?.phone === 'string' ? request.body.phone.trim() : ''
+  const address = typeof request.body?.address === 'string' ? request.body.address.trim() : ''
+  const address2 = typeof request.body?.address2 === 'string' ? request.body.address2.trim() : ''
+  const city = typeof request.body?.city === 'string' ? request.body.city.trim() : ''
+  const region = typeof request.body?.region === 'string' ? request.body.region.trim() : ''
+
+  if (!name || name.length > 100 || !phone || phone.length > 30 ||
+      !address || address.length > 180 || address2.length > 180 ||
+      !city || city.length > 100 || !region || region.length > 100) {
+    response.status(400).json({ error: 'Revisa nombre, teléfono y datos de envío; hay campos vacíos o demasiado largos.' })
     return
   }
-  response.json({ user: { ...publicCustomer(customer), role: 'customer' } })
+
+  database.prepare(`
+    UPDATE customer_users
+    SET name = ?, phone = ?, address = ?, address2 = ?, city = ?, region = ?
+    WHERE id = ?
+  `).run(name, phone, address, address2, city, region, request.customer.id)
+
+  const updatedCustomer = database.prepare('SELECT * FROM customer_users WHERE id = ?').get(request.customer.id)
+  response.json({ user: { ...publicCustomer(updatedCustomer), role: 'customer' } })
+})
+
+app.get('/api/customers/orders', requireCustomer, (request, response) => {
+  const orders = database.prepare(`
+    SELECT id, customerName, customerEmail, customerPhone, shippingAddress,
+           shippingAddress2, shippingCity, shippingRegion, shippingNotes,
+           itemsJson, subtotal, shipping, total, status, createdAt
+    FROM orders
+    WHERE customerId = ?
+    ORDER BY id DESC
+    LIMIT 100
+  `).all(request.customer.id).map((order) => ({
+    ...order,
+    items: JSON.parse(order.itemsJson)
+  }))
+  response.json(orders)
 })
 
 app.post('/api/customers/logout', (request, response) => {
@@ -336,11 +383,11 @@ app.post('/api/customers/logout', (request, response) => {
   response.status(204).end()
 })
 
-app.post('/api/orders', (request, response) => {
+app.post('/api/orders', requireCustomer, (request, response) => {
   const details = request.body?.shippingDetails || {}
   const items = request.body?.items
   const name = typeof details.name === 'string' ? details.name.trim() : ''
-  const email = typeof details.email === 'string' ? details.email.trim().toLowerCase() : ''
+  const email = request.customer.email
   const phone = typeof details.phone === 'string' ? details.phone.trim() : ''
   const address = typeof details.address === 'string' ? details.address.trim() : ''
   const address2 = typeof details.address2 === 'string' ? details.address2.trim() : ''
@@ -397,19 +444,14 @@ app.post('/api/orders', (request, response) => {
     const subtotal = orderItems.reduce((sum, item) => sum + item.lineTotal, 0)
     const shipping = subtotal > 0 ? 2000 : 0
     const total = subtotal + shipping
-    const customerToken = getCookie(request, 'urbanstyle_customer')
-    const customer = customerToken.length === 64
-      ? findCustomerSession.get(hashToken(customerToken), Date.now())
-      : null
+    const customer = request.customer
 
     const saveOrder = database.transaction(() => {
-      if (customer) {
-        database.prepare(`
-          UPDATE customer_users
-          SET name = ?, phone = ?, address = ?, address2 = ?, city = ?, region = ?
-          WHERE id = ?
-        `).run(name, phone, address, address2, city, region, customer.id)
-      }
+      database.prepare(`
+        UPDATE customer_users
+        SET name = ?, phone = ?, address = ?, address2 = ?, city = ?, region = ?
+        WHERE id = ?
+      `).run(name, phone, address, address2, city, region, customer.id)
       const result = database.prepare(`
         INSERT INTO orders (
           customerId, customerName, customerEmail, customerPhone,
@@ -424,7 +466,7 @@ app.post('/api/orders', (request, response) => {
       `).run({
         customerId: customer?.id || null,
         name,
-        email,
+        email: customer.email,
         phone,
         address,
         address2,

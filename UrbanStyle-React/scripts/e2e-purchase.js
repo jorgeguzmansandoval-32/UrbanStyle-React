@@ -40,6 +40,15 @@ async function runPurchaseFlow() {
     region: 'Metropolitana'
   }
 
+  const unauthenticatedOrder = await apiRequest('/api/orders', {
+    method: 'POST',
+    body: {
+      shippingDetails: customer,
+      items: [{ id: 1, quantity: 1 }]
+    }
+  })
+  assert.equal(unauthenticatedOrder.status, 401, 'El servidor aceptó un pedido sin iniciar sesión.')
+
   const registration = await apiRequest('/api/customers/register', {
     method: 'POST',
     body: customer
@@ -60,6 +69,20 @@ async function runPurchaseFlow() {
   assert.equal(login.payload.user.email, email)
   assert.ok(login.cookie, 'La API no devolvió cookie de sesión para el cliente.')
 
+  const updatedProfile = {
+    ...customer,
+    name: 'Cliente E2E Actualizado',
+    address: 'Avenida Providencia 456'
+  }
+  const profileResponse = await apiRequest('/api/customers/me', {
+    method: 'PUT',
+    cookie: login.cookie,
+    body: updatedProfile
+  })
+  assert.equal(profileResponse.status, 200, `No se pudo actualizar el perfil: ${JSON.stringify(profileResponse.payload)}`)
+  assert.equal(profileResponse.payload.user.name, updatedProfile.name)
+  assert.equal(profileResponse.payload.user.address, updatedProfile.address)
+
   const catalog = await apiRequest('/api/products', { cookie: login.cookie })
   assert.equal(catalog.status, 200, 'No se pudo consultar el catálogo.')
   const product = catalog.payload.find((item) =>
@@ -73,7 +96,7 @@ async function runPurchaseFlow() {
     method: 'POST',
     cookie: login.cookie,
     body: {
-      shippingDetails: customer,
+      shippingDetails: updatedProfile,
       items: cart
     }
   })
@@ -82,6 +105,10 @@ async function runPurchaseFlow() {
   const { order } = orderResponse.payload
   assert.ok(order?.id, 'La confirmación no contiene un identificador de pedido.')
   assert.equal(order.status, 'pending_payment')
+
+  const customerOrders = await apiRequest('/api/customers/orders', { cookie: login.cookie })
+  assert.equal(customerOrders.status, 200, 'No se pudo cargar el historial del cliente.')
+  assert.ok(customerOrders.payload.some((saved) => saved.id === order.id), 'El pedido no aparece en el historial del cliente.')
 
   const database = new Database(path.join(projectDirectory, 'server', 'data', 'urbanstyle.db'), {
     readonly: true
@@ -97,6 +124,7 @@ async function runPurchaseFlow() {
     assert.equal(savedOrder.customerEmail, email)
     assert.equal(savedOrder.status, 'pending_payment')
     assert.deepEqual(JSON.parse(savedOrder.itemsJson).map(({ id, quantity }) => ({ id, quantity })), cart)
+    assert.equal(database.prepare('SELECT name, address FROM customer_users WHERE id = ?').get(savedOrder.customerId).address, updatedProfile.address)
   } finally {
     database.close()
   }

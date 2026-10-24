@@ -23,6 +23,9 @@ const productosDePrueba = [
   }
 ]
 
+let clienteApi = null
+let pedidosApi = []
+
 function respuestaJson(body, status = 200) {
   return Promise.resolve({
     ok: status >= 200 && status < 300,
@@ -35,7 +38,16 @@ function prepararApi() {
   spyOn(window, 'fetch').and.callFake((url, options = {}) => {
     if (url === '/api/products' && !options.method) return respuestaJson(productosDePrueba)
     if (url === '/api/auth/me') return respuestaJson({ error: 'Debes iniciar sesión como administrador.' }, 401)
-    if (url === '/api/customers/me') return respuestaJson({ error: 'No hay una sesión de cliente activa.' }, 401)
+    if (url === '/api/customers/me' && options.method === 'PUT') return respuestaJson({ user: { ...clienteApi, ...JSON.parse(options.body), role: 'customer' } })
+    if (url === '/api/customers/me') return clienteApi
+      ? respuestaJson({ user: { ...clienteApi, role: 'customer' } })
+      : respuestaJson({ error: 'No hay una sesión de cliente activa.' }, 401)
+    if (url === '/api/customers/orders') return clienteApi
+      ? respuestaJson(pedidosApi)
+      : respuestaJson({ error: 'Debes iniciar sesión como cliente para continuar.' }, 401)
+    if (url === '/api/customers/login' && options.method === 'POST') {
+      return respuestaJson({ user: { email: 'cliente@example.test', role: 'customer' } })
+    }
     return respuestaJson({ error: 'Ruta no configurada en la prueba.' }, 404)
   })
 }
@@ -43,6 +55,8 @@ function prepararApi() {
 describe('Interfaz de la tienda', () => {
   beforeEach(() => {
     localStorage.clear()
+    clienteApi = null
+    pedidosApi = []
     prepararApi()
   })
 
@@ -54,6 +68,19 @@ describe('Interfaz de la tienda', () => {
     expect(await screen.findByText(/Streetwear/)).toBeTruthy()
     expect(await screen.findByText('2 prendas seleccionadas')).toBeTruthy()
     expect(screen.getByText('Chaqueta de prueba')).toBeTruthy()
+  })
+
+  it('mantiene visible el catálogo cuando la sesión de cliente devuelve otro mensaje 401', async () => {
+    window.fetch.and.callFake((url) => {
+      if (url === '/api/products') return respuestaJson(productosDePrueba)
+      if (url === '/api/auth/me') return respuestaJson({ error: 'Sin sesión de administrador.' }, 401)
+      if (url === '/api/customers/me') return respuestaJson({ error: 'Debes iniciar sesión como cliente para continuar.' }, 401)
+      return respuestaJson({ error: 'Ruta no configurada en la prueba.' }, 404)
+    })
+    render(<App />)
+
+    expect(await screen.findByText('Chaqueta de prueba')).toBeTruthy()
+    expect(screen.queryByText(/No se pudo cargar el catálogo/)).toBeNull()
   })
 
   it('filtra los productos al elegir una categoría', async () => {
@@ -85,6 +112,52 @@ describe('Interfaz de la tienda', () => {
 
     expect(screen.getByRole('status').textContent).toContain('Prenda agregada')
     expect(screen.getByLabelText('Abrir bolsa de compras, 1 prenda')).toBeTruthy()
+  })
+
+  it('exige iniciar sesión como cliente antes de continuar al checkout', async () => {
+    render(<App />)
+    await screen.findByText('Chaqueta de prueba')
+    fireEvent.click(screen.getAllByRole('button', { name: 'Añadir' })[0])
+    fireEvent.click(screen.getByLabelText('Abrir bolsa de compras, 1 prenda'))
+    fireEvent.click(screen.getByRole('button', { name: /Revisar compra/i }))
+
+    expect(await screen.findByRole('dialog', { name: /Bienvenido/i })).toBeTruthy()
+    expect(screen.getByText(/Inicia sesión o crea una cuenta de cliente/i)).toBeTruthy()
+    expect(screen.queryByRole('dialog', { name: /¿A dónde lo enviamos/i })).toBeNull()
+  })
+
+  it('muestra el perfil del cliente y su historial de pedidos', async () => {
+    const customer = {
+      id: 10,
+      email: 'cliente@example.test',
+      name: 'Cliente Prueba',
+      phone: '+56 9 1234 5678',
+      address: 'Av. Providencia 123',
+      address2: '',
+      city: 'Santiago',
+      region: 'Metropolitana'
+    }
+    clienteApi = customer
+    pedidosApi = [{
+      id: 42,
+      customerName: customer.name,
+      status: 'pending_payment',
+      createdAt: '2026-10-20 12:00:00',
+      shippingCity: customer.city,
+      shippingRegion: customer.region,
+      items: [{ id: 1, name: 'Chaqueta de prueba', quantity: 1, lineTotal: 25000 }],
+      total: 27000
+    }]
+    render(<App />)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Mi cuenta' }))
+    expect(await screen.findByDisplayValue(customer.email)).toBeTruthy()
+    expect(screen.getByDisplayValue(customer.address)).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('tab', { name: /Mis pedidos/i }))
+    expect(await screen.findByText('Pedido #42')).toBeTruthy()
+    expect(screen.getByText('Pendiente de pago')).toBeTruthy()
+    expect(screen.getAllByText(/Chaqueta de prueba/).length).toBe(2)
   })
 
   it('muestra errores accesibles y no envía el login si los datos son inválidos', async () => {
