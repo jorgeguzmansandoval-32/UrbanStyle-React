@@ -297,12 +297,7 @@ export default function AdminProductos() {
                 <img
                   src={imagen}
                   alt="Vista previa del producto"
-                  style={{
-                    width: '120px',
-                    height: '120px',
-                    objectFit: 'cover',
-                    borderRadius: '10px'
-                  }}
+                  className="product-image-preview"
                 />
               )}
 
@@ -348,12 +343,7 @@ export default function AdminProductos() {
                       />
                     ) : (
                       <div
-                        className="placeholder-image"
-                        style={{
-                          width: '90px',
-                          height: '90px',
-                          flexShrink: 0
-                        }}
+                        className="placeholder-image admin-product-placeholder"
                       >
                         Sin imagen
                       </div>

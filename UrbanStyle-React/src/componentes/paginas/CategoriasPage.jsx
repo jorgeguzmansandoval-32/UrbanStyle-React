@@ -1,55 +1,78 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 
-const CategoriasPage = ({ productos = [] }) => {
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('Todas');
+import { useState } from 'react'
+import { obtenerProductos } from '../../data/productos'
+import Producto from '../Producto'
 
-  const categorias = ['Todas', 'Poleras', 'Polerones', 'Pantalones', 'Accesorios'];
+export default function CategoriasPage() {
+  const [categoria, setCategoria] = useState('Todas')
 
-  const productosFiltrados = categoriaSeleccionada === 'Todas'
+  const productos = obtenerProductos().filter(
+    (producto) => Number(producto.stock) > 0
+  )
+
+  const categorias = [
+    'Todas',
+    ...new Set(
+      productos
+        .map((producto) => producto.categoria)
+        .filter(Boolean)
+    )
+  ]
+
+  const productosFiltrados = categoria === 'Todas'
     ? productos
-    : productos.filter(p => p.categoria?.toLowerCase() === categoriaSeleccionada.toLowerCase());
+    : productos.filter(
+        (producto) => producto.categoria === categoria
+      )
 
   return (
-    <div className="container my-4">
-      <h2 className="mb-4">Categorías</h2>
-      
-      {/* Botones de categorías */}
+    <main className="container my-5">
+      <div className="mb-4">
+        <span className="section-number">
+          URBANSTYLE / CATEGORÍAS
+        </span>
+
+        <h1 className="fw-bold mt-2">
+          Explora nuestras colecciones
+        </h1>
+
+        <p className="text-secondary">
+          Encuentra las prendas que mejor combinan con tu estilo.
+        </p>
+      </div>
+
       <div className="d-flex flex-wrap gap-2 mb-4">
-        {categorias.map(cat => (
+        {categorias.map((item) => (
           <button
-            key={cat}
-            className={`btn ${categoriaSeleccionada === cat ? 'btn-dark' : 'btn-outline-dark'}`}
-            onClick={() => setCategoriaSeleccionada(cat)}
+            key={item}
+            type="button"
+            className={
+              categoria === item
+                ? 'btn btn-dark'
+                : 'btn btn-outline-dark'
+            }
+            onClick={() => setCategoria(item)}
           >
-            {cat}
+            {item}
           </button>
         ))}
       </div>
 
-      {/* Grid de productos */}
-      <div className="row g-4">
-        {productosFiltrados.length > 0 ? (
-          productosFiltrados.map(prod => (
-            <div key={prod.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
-              <div className="card h-100 shadow-sm">
-                <img src={prod.imagen || 'https://via.placeholder.com/400x300'} className="card-img-top" alt={prod.nombre} />
-                <div className="card-body d-flex flex-column">
-                  <h5 className="card-title">{prod.nombre}</h5>
-                  <p className="card-text text-muted">${prod.precio?.toLocaleString('clp')}</p>
-                  <Link to={`/producto/${prod.id}`} className="btn btn-outline-primary mt-auto">Ver detalle</Link>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="col-12">
-            <p className="alert alert-info">No hay productos disponibles en esta categoría.</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default CategoriasPage;
+      {productosFiltrados.length > 0 ? (
+        <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 premium-product-grid">
+          {productosFiltrados.map((producto, index) => (
+            <Producto
+              key={producto.id}
+              producto={producto}
+              numero={index + 1}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="alert alert-secondary">
+          No hay productos disponibles en esta categoría.
+        </div>
+      )}
+    </main>
+  )
+}

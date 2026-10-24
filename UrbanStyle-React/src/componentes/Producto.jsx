@@ -1,11 +1,24 @@
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { agregarAlCarrito } from '../data/carrito'
 
 export default function Producto({ producto, numero }) {
 
-  const [mensaje, setMensaje] = useState('')
+  const [notificacion, setNotificacion] = useState(null)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (!notificacion) {
+      return
+    }
+
+    const temporizador = window.setTimeout(() => {
+      setNotificacion(null)
+    }, 3000)
+
+    return () => window.clearTimeout(temporizador)
+  }, [notificacion])
 
   // Formatear el precio en pesos chilenos
   const formatearPrecio = (precio) => {
@@ -18,12 +31,11 @@ export default function Producto({ producto, numero }) {
 
   // Agregar producto al carrito
   function manejarAgregar() {
-    setMensaje('')
     setError('')
 
     try {
       agregarAlCarrito(producto.id)
-      setMensaje('Producto añadido a la bolsa.')
+      setNotificacion({ id: Date.now(), nombre: producto.name })
     } catch (error) {
       setError(error.message)
     }
@@ -73,15 +85,6 @@ export default function Producto({ producto, numero }) {
               Añadir a la bolsa <span>→</span>
             </button>
 
-            {mensaje && (
-              <p
-                className="text-success small mt-2 mb-0"
-                role="status"
-              >
-                {mensaje}
-              </p>
-            )}
-
             {error && (
               <p
                 className="text-danger small mt-2 mb-0"
@@ -94,6 +97,24 @@ export default function Producto({ producto, numero }) {
           </div>
         </div>
       </article>
+
+      {notificacion && (
+        <div className="urbanstyle-toast-container">
+          <div
+            className="urbanstyle-toast show"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="urbanstyle-toast-content">
+              <strong>Producto añadido a la bolsa</strong>
+              <span>{notificacion.nombre}</span>
+              <Link to="/cart" className="urbanstyle-toast-link">
+                Ver bolsa <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

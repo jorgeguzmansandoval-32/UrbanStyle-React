@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import {
   obtenerCarrito,
@@ -9,11 +9,14 @@ import {
   calcularTotales,
   formatearPrecio
 } from '../../data/carrito'
+import { obtenerSesion } from '../../data/autenticacion'
 
 export default function CarritoPage() {
+  const navigate = useNavigate()
 
   const [carrito, setCarrito] = useState(obtenerCarrito)
   const [error, setError] = useState('')
+  const [mostrarAvisoSesion, setMostrarAvisoSesion] = useState(false)
 
   // Actualizar la información del carrito
   useEffect(() => {
@@ -29,6 +32,20 @@ export default function CarritoPage() {
       window.removeEventListener('storage', actualizarCarrito)
     }
   }, [])
+
+  useEffect(() => {
+    if (!mostrarAvisoSesion) {
+      return
+    }
+
+    const temporizador = window.setTimeout(() => {
+      navigate('/account', {
+        state: { from: { pathname: '/checkout' } }
+      })
+    }, 5000)
+
+    return () => window.clearTimeout(temporizador)
+  }, [mostrarAvisoSesion, navigate])
 
   // Aumentar o disminuir cantidades
   function modificarCantidad(id, cantidad) {
@@ -48,6 +65,15 @@ export default function CarritoPage() {
 
     eliminarDelCarrito(id)
     setCarrito(obtenerCarrito())
+  }
+
+  function manejarFinalizarCompra() {
+    if (!obtenerSesion()) {
+      setMostrarAvisoSesion(true)
+      return
+    }
+
+    navigate('/checkout')
   }
 
   const { subtotal, envio, total } = calcularTotales(carrito)
@@ -73,6 +99,25 @@ export default function CarritoPage() {
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
+        </div>
+      )}
+
+      {mostrarAvisoSesion && (
+        <div className="urbanstyle-toast-container">
+          <button
+            type="button"
+            className="urbanstyle-toast urbanstyle-toast-action show"
+            aria-label="Inicia sesión para continuar con tu compra. Ir al inicio de sesión ahora."
+            onClick={() => navigate('/account', {
+              state: { from: { pathname: '/checkout' } }
+            })}
+          >
+            <div className="urbanstyle-toast-content">
+              <strong>Inicia sesión para continuar</strong>
+              <span>Debes estar registrado e iniciar sesión para finalizar tu compra.</span>
+              <span className="urbanstyle-toast-hint">Pulsa aquí para iniciar sesión ahora</span>
+            </div>
+          </button>
         </div>
       )}
 
@@ -233,8 +278,7 @@ export default function CarritoPage() {
               <button
                 type="button"
                 className="btn btn-dark w-100 mt-3 checkout-btn"
-                disabled
-                title="Disponible cuando implementemos el checkout"
+                onClick={manejarFinalizarCompra}
               >
                 Finalizar compra
               </button>
