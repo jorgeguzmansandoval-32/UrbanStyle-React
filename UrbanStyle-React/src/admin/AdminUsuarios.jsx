@@ -34,7 +34,7 @@ export default function AdminUsuarios() {
       setAdministradores(obtenerAdministradores())
       setFormulario(formularioInicial)
       event.currentTarget.reset()
-      setMensaje('Usuario administrador creado correctamente.')
+      setMensaje('Usuario administrador creado correctamente')
     } catch (errorCreacion) {
       setError(errorCreacion.message)
     }
